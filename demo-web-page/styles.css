@@ -376,3 +376,28 @@ body.wide .page, body.wide .nav-inner { max-width: 1560px; }
 .notice b { color: var(--text); font-weight: 500; white-space: nowrap; }
 .notice span { white-space: nowrap; }
 .notice i { width: 8px; height: 8px; border-radius: 50%; background: #4cc38a; box-shadow: 0 0 8px #4cc38a; flex: none; }
+
+/* ---------- Explore a game: header, chips, horizontal shelves of slabs ---------- */
+#explore[hidden] { display: none; }
+.explore-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 18px; }
+.explore-head h1 { font-size: 34px; font-weight: 500; letter-spacing: -0.01em; }
+.explore-search input { width: 320px; max-width: 100%; padding: 11px 16px; border-radius: 999px; border: 1px solid var(--line-2); background: #131314; color: var(--text); font: inherit; font-size: 14px; outline: none; }
+.explore-search input:focus { border-color: rgba(255,255,255,.3); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 4px; }
+.chips button { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--muted); font: inherit; font-size: 13.5px; cursor: pointer; }
+.chips button.active { background: var(--text); color: #0b0b0c; border-color: var(--text); }
+.shelf { margin-top: 30px; }
+.shelf h2 { font-size: 20px; font-weight: 500; margin-bottom: 14px; }
+.shelf .chev { color: var(--muted); margin-left: 4px; }
+.rail { display: flex; gap: 18px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: thin; }
+.tile { flex: 0 0 190px; cursor: pointer; }
+.tile .pic { position: relative; width: 190px; height: 254px; border-radius: 12px; background: linear-gradient(160deg, #1b1b1e, #111113); border: 1px solid var(--line); overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform .2s cubic-bezier(.4,0,.2,1), border-color .2s; }
+.tile:hover .pic { transform: translateY(-3px); border-color: var(--line-2); }
+.tile .pic img { width: 100%; height: 100%; object-fit: contain; }
+.tile .rank { position: absolute; left: 10px; top: 8px; font-size: 22px; font-weight: 500; color: var(--text); text-shadow: 0 1px 6px rgba(0,0,0,.8); }
+.tile .live-tag { position: absolute; right: 8px; top: 8px; display: flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 999px; background: rgba(0,0,0,.65); font-size: 11px; color: var(--text); }
+.tile .nm { margin-top: 10px; font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .nm .grade-chip { margin-left: 6px; font-size: 11px; padding: 2px 6px; }
+.tile .pr { margin-top: 3px; font-size: 13px; color: var(--muted); }
+.tile .pr b { color: var(--text); font-weight: 500; }
+.rail .empty { color: var(--muted); font-size: 14px; padding: 20px 0; }

@@ -1,0 +1,62 @@
+{
+ "game": "Pokémon",
+ "note": "Real cards from the vault, prices are asking prices. Only Zekrom ex PSA 10 is live on-chain for now.",
+ "cards": [
+  {
+   "id": "zekrom",
+   "name": "Zekrom ex 166/086",
+   "set": "BLK FR 2025",
+   "grade": "PSA 10",
+   "price": 800,
+   "image": "../docs/psa-137798077-front.jpg",
+   "live": true,
+   "listed": "2026-10-09",
+   "asset_code": "PSA137798077"
+  },
+  {
+   "id": "513",
+   "name": "Dracaufeu V 154/172",
+   "set": "Stars Étincelantes",
+   "grade": "PCA 10",
+   "price": 800,
+   "image": "img/cards/stock-513.jpg",
+   "listed": "2026-08-30"
+  },
+  {
+   "id": "419",
+   "name": "Méga Dracolosse 295/217",
+   "set": "Héros Transcendants",
+   "grade": "PCA 10",
+   "price": 700,
+   "image": "img/cards/stock-419.jpg",
+   "listed": "2026-08-03"
+  },
+  {
+   "id": "387",
+   "name": "Pikachu EX 238/191 Alt",
+   "set": "Écarlate et Violet",
+   "grade": "PCA 10",
+   "price": 555,
+   "image": "img/cards/stock-387.jpg",
+   "listed": "2026-07-08"
+  },
+  {
+   "id": "198",
+   "name": "Mewtwo ex Team Rocket 281/217",
+   "set": "Héros Transcendants",
+   "grade": "PCA 10",
+   "price": 530,
+   "image": "img/cards/stock-198.jpg",
+   "listed": "2026-05-13"
+  },
+  {
+   "id": "524",
+   "name": "Dracaufeu ex 199/165",
+   "set": "151",
+   "grade": "PCA 9,5",
+   "price": 500,
+   "image": "img/cards/stock-524.jpg",
+   "listed": "2026-09-15"
+  }
+ ]
+}

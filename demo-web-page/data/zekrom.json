@@ -1,282 +1,282 @@
 {
-  "asset_code": "PSA137798077",
-  "name": "Zekrom ex",
-  "set": "Pokémon BLK FR 2025",
-  "number": "166/086",
-  "rarity": "Special Illustration Rare",
+ "asset_code": "PSA137798077",
+ "name": "Zekrom ex",
+ "set": "Pokémon BLK FR 2025",
+ "number": "166/086",
+ "rarity": "Special Illustration Rare",
+ "grader": "PSA",
+ "grade": "10",
+ "grade_label": "GEM MT 10",
+ "cert": "137798077",
+ "image": "../docs/psa-137798077-front.jpg",
+ "image_back": "../docs/psa-137798077-back.jpg",
+ "population": {
   "grader": "PSA",
-  "grade": "10",
-  "grade_label": "GEM MT 10",
-  "cert": "137798077",
-  "image": "../docs/psa-137798077-front.jpg",
-  "image_back": "../docs/psa-137798077-back.jpg",
-  "population": {
-    "grader": "PSA",
-    "total": 164,
-    "by_grade": [
-      {
-        "grade": "10",
-        "count": 116
-      },
-      {
-        "grade": "9",
-        "count": 20
-      },
-      {
-        "grade": "8",
-        "count": 11
-      },
-      {
-        "grade": "7",
-        "count": 14
-      },
-      {
-        "grade": "6",
-        "count": 2
-      },
-      {
-        "grade": "5",
-        "count": 1
-      }
-    ]
-  },
-  "sales": [
-    {
-      "date": "2026-03-01",
-      "price": 480,
-      "grader": "PSA",
-      "grade": "10",
-      "buyer": "@samtcg"
-    },
-    {
-      "date": "2026-03-28",
-      "price": 495,
-      "grader": "PSA",
-      "grade": "10",
-      "buyer": "@lea_pulls"
-    },
-    {
-      "date": "2026-04-19",
-      "price": 540,
-      "grader": "PSA",
-      "grade": "10",
-      "buyer": "@paulg"
-    },
-    {
-      "date": "2026-05-10",
-      "price": 590,
-      "grader": "PSA",
-      "grade": "10",
-      "buyer": "@hugo.vault"
-    },
-    {
-      "date": "2026-06-02",
-      "price": 640,
-      "grader": "PSA",
-      "grade": "10",
-      "buyer": "@emmaf"
-    },
-    {
-      "date": "2026-06-21",
-      "price": 680,
-      "grader": "PSA",
-      "grade": "10",
-      "buyer": "@ninak"
-    },
-    {
-      "date": "2026-07-05",
-      "price": 610,
-      "grader": "PSA",
-      "grade": "10",
-      "buyer": "@marcd"
-    },
-    {
-      "date": "2026-07-26",
-      "price": 700,
-      "grader": "PSA",
-      "grade": "10",
-      "buyer": "@sophie_l"
-    },
-    {
-      "date": "2026-08-16",
-      "price": 800,
-      "grader": "PSA",
-      "grade": "10",
-      "buyer": "@thomasr"
-    },
-    {
-      "date": "2026-05-22",
-      "price": 310,
-      "grader": "PCA",
-      "grade": "10",
-      "buyer": "@juliem"
-    },
-    {
-      "date": "2026-07-14",
-      "price": 350,
-      "grader": "PCA",
-      "grade": "10",
-      "buyer": "@alexb"
-    },
-    {
-      "date": "2026-06-30",
-      "price": 220,
-      "grader": "PSA",
-      "grade": "9",
-      "buyer": "@ines_c"
-    }
-  ],
-  "market": [
-    {
-      "name": "Zekrom ex 166/086",
-      "set": "BLK FR 2025",
-      "grade": "PSA 10",
-      "price": 800,
-      "change": 14.3,
-      "volume": 4800,
-      "sales": 6,
-      "asset_code": "PSA137798077",
-      "live": true,
-      "game": "Pokémon",
-      "listed": "2026-10-09"
-    },
-    {
-      "name": "Dracaufeu V 154/172",
-      "set": "Stars Étincelantes",
-      "grade": "PCA 10",
-      "price": 1000,
-      "change": 3.1,
-      "volume": 7000,
-      "sales": 7,
-      "game": "Pokémon",
-      "listed": "2026-09-28"
-    },
-    {
-      "name": "Pikachu EX 238/191 Alt",
-      "set": "Écarlate et Violet",
-      "grade": "PCA 10",
-      "price": 700,
-      "change": -2.4,
-      "volume": 2100,
-      "sales": 3,
-      "game": "Pokémon",
-      "listed": "2026-08-30"
-    },
-    {
-      "name": "Méga Dracolosse 295/217",
-      "set": "Héros Transcendants",
-      "grade": "PCA 10",
-      "price": 700,
-      "change": 8.9,
-      "volume": 3500,
-      "sales": 5,
-      "game": "Pokémon",
-      "listed": "2026-09-15"
-    },
-    {
-      "name": "Magicarpe 203/193",
-      "set": "Évolutions à Paldea",
-      "grade": "PCA 9.5",
-      "price": 500,
-      "change": 0.6,
-      "volume": 1500,
-      "sales": 3,
-      "game": "Pokémon",
-      "listed": "2026-09-02"
-    },
-    {
-      "name": "Monkey D. Luffy OP05-119",
-      "set": "Awakening of the New Era",
-      "grade": "PSA 10",
-      "price": 1250,
-      "change": 5.2,
-      "volume": 6200,
-      "sales": 5,
-      "game": "One Piece",
-      "listed": "2026-10-05"
-    },
-    {
-      "name": "Shanks OP01-120 Alt",
-      "set": "Romance Dawn",
-      "grade": "PSA 9",
-      "price": 540,
-      "change": -1.8,
-      "volume": 1600,
-      "sales": 3,
-      "game": "One Piece",
-      "listed": "2026-09-20"
-    },
-    {
-      "name": "Black Lotus (Unlimited)",
-      "set": "Unlimited Edition",
-      "grade": "BGS 8",
-      "price": 14800,
-      "change": 2.1,
-      "volume": 14800,
-      "sales": 1,
-      "game": "Magic The Gathering",
-      "listed": "2026-10-07"
-    },
-    {
-      "name": "Ragavan, Nimble Pilferer",
-      "set": "Modern Horizons 2",
-      "grade": "PSA 10",
-      "price": 210,
-      "change": 11.4,
-      "volume": 1050,
-      "sales": 5,
-      "game": "Magic The Gathering",
-      "listed": "2026-10-01"
-    }
-  ],
-  "details": [
-    [
-      "Category",
-      "Pokémon"
-    ],
-    [
-      "Language",
-      "French"
-    ],
-    [
-      "Set",
-      "Scarlet & Violet"
-    ],
-    [
-      "Series",
-      "Black Bolt (BLK)"
-    ],
-    [
-      "Edition",
-      "Unlimited"
-    ],
-    [
-      "Reference",
-      "#166/086"
-    ],
-    [
-      "Rarity",
-      "Special Illustration Rare"
-    ],
-    [
-      "Variety",
-      "Full Art"
-    ],
-    [
-      "Attribute",
-      "ex"
-    ],
-    [
-      "Manufacturer",
-      "Nintendo"
-    ],
-    [
-      "Illustrator",
-      "danciao"
-    ],
-    [
-      "Year",
-      "2025"
-    ]
+  "total": 164,
+  "by_grade": [
+   {
+    "grade": "10",
+    "count": 116
+   },
+   {
+    "grade": "9",
+    "count": 20
+   },
+   {
+    "grade": "8",
+    "count": 11
+   },
+   {
+    "grade": "7",
+    "count": 14
+   },
+   {
+    "grade": "6",
+    "count": 2
+   },
+   {
+    "grade": "5",
+    "count": 1
+   }
   ]
+ },
+ "sales": [
+  {
+   "date": "2026-03-01",
+   "price": 480,
+   "grader": "PSA",
+   "grade": "10",
+   "buyer": "@samtcg"
+  },
+  {
+   "date": "2026-03-28",
+   "price": 495,
+   "grader": "PSA",
+   "grade": "10",
+   "buyer": "@lea_pulls"
+  },
+  {
+   "date": "2026-04-19",
+   "price": 540,
+   "grader": "PSA",
+   "grade": "10",
+   "buyer": "@paulg"
+  },
+  {
+   "date": "2026-05-10",
+   "price": 590,
+   "grader": "PSA",
+   "grade": "10",
+   "buyer": "@hugo.vault"
+  },
+  {
+   "date": "2026-06-02",
+   "price": 640,
+   "grader": "PSA",
+   "grade": "10",
+   "buyer": "@emmaf"
+  },
+  {
+   "date": "2026-06-21",
+   "price": 680,
+   "grader": "PSA",
+   "grade": "10",
+   "buyer": "@ninak"
+  },
+  {
+   "date": "2026-07-05",
+   "price": 610,
+   "grader": "PSA",
+   "grade": "10",
+   "buyer": "@marcd"
+  },
+  {
+   "date": "2026-07-26",
+   "price": 700,
+   "grader": "PSA",
+   "grade": "10",
+   "buyer": "@sophie_l"
+  },
+  {
+   "date": "2026-08-16",
+   "price": 800,
+   "grader": "PSA",
+   "grade": "10",
+   "buyer": "@thomasr"
+  },
+  {
+   "date": "2026-05-22",
+   "price": 310,
+   "grader": "PCA",
+   "grade": "10",
+   "buyer": "@juliem"
+  },
+  {
+   "date": "2026-07-14",
+   "price": 350,
+   "grader": "PCA",
+   "grade": "10",
+   "buyer": "@alexb"
+  },
+  {
+   "date": "2026-06-30",
+   "price": 220,
+   "grader": "PSA",
+   "grade": "9",
+   "buyer": "@ines_c"
+  }
+ ],
+ "market": [
+  {
+   "name": "Zekrom ex 166/086",
+   "set": "BLK FR 2025",
+   "grade": "PSA 10",
+   "price": 800,
+   "change": 14.3,
+   "volume": 4800,
+   "sales": 6,
+   "asset_code": "PSA137798077",
+   "live": true,
+   "game": "Pokémon",
+   "listed": "2026-10-09"
+  },
+  {
+   "name": "Dracaufeu V 154/172",
+   "set": "Stars Étincelantes",
+   "grade": "PCA 10",
+   "price": 800,
+   "change": 3.1,
+   "volume": 7000,
+   "sales": 7,
+   "game": "Pokémon",
+   "listed": "2026-09-28"
+  },
+  {
+   "name": "Pikachu EX 238/191 Alt",
+   "set": "Écarlate et Violet",
+   "grade": "PCA 10",
+   "price": 555,
+   "change": -2.4,
+   "volume": 2100,
+   "sales": 3,
+   "game": "Pokémon",
+   "listed": "2026-08-30"
+  },
+  {
+   "name": "Méga Dracolosse 295/217",
+   "set": "Héros Transcendants",
+   "grade": "PCA 10",
+   "price": 700,
+   "change": 8.9,
+   "volume": 3500,
+   "sales": 5,
+   "game": "Pokémon",
+   "listed": "2026-09-15"
+  },
+  {
+   "name": "Magicarpe 203/193",
+   "set": "Évolutions à Paldea",
+   "grade": "PCA 9.5",
+   "price": 500,
+   "change": 0.6,
+   "volume": 1500,
+   "sales": 3,
+   "game": "Pokémon",
+   "listed": "2026-09-02"
+  },
+  {
+   "name": "Monkey D. Luffy OP05-119",
+   "set": "Awakening of the New Era",
+   "grade": "PSA 10",
+   "price": 1250,
+   "change": 5.2,
+   "volume": 6200,
+   "sales": 5,
+   "game": "One Piece",
+   "listed": "2026-10-05"
+  },
+  {
+   "name": "Shanks OP01-120 Alt",
+   "set": "Romance Dawn",
+   "grade": "PSA 9",
+   "price": 540,
+   "change": -1.8,
+   "volume": 1600,
+   "sales": 3,
+   "game": "One Piece",
+   "listed": "2026-09-20"
+  },
+  {
+   "name": "Black Lotus (Unlimited)",
+   "set": "Unlimited Edition",
+   "grade": "BGS 8",
+   "price": 14800,
+   "change": 2.1,
+   "volume": 14800,
+   "sales": 1,
+   "game": "Magic The Gathering",
+   "listed": "2026-10-07"
+  },
+  {
+   "name": "Ragavan, Nimble Pilferer",
+   "set": "Modern Horizons 2",
+   "grade": "PSA 10",
+   "price": 210,
+   "change": 11.4,
+   "volume": 1050,
+   "sales": 5,
+   "game": "Magic The Gathering",
+   "listed": "2026-10-01"
+  }
+ ],
+ "details": [
+  [
+   "Category",
+   "Pokémon"
+  ],
+  [
+   "Language",
+   "French"
+  ],
+  [
+   "Set",
+   "Scarlet & Violet"
+  ],
+  [
+   "Series",
+   "Black Bolt (BLK)"
+  ],
+  [
+   "Edition",
+   "Unlimited"
+  ],
+  [
+   "Reference",
+   "#166/086"
+  ],
+  [
+   "Rarity",
+   "Special Illustration Rare"
+  ],
+  [
+   "Variety",
+   "Full Art"
+  ],
+  [
+   "Attribute",
+   "ex"
+  ],
+  [
+   "Manufacturer",
+   "Nintendo"
+  ],
+  [
+   "Illustrator",
+   "danciao"
+  ],
+  [
+   "Year",
+   "2025"
+  ]
+ ]
 }

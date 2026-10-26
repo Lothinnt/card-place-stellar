@@ -71,6 +71,24 @@
   </section>
 
   <!-- ====== Card ====== -->
+  <!-- ====== Explore a game (Pokémon) ====== -->
+  <section id="explore" class="section" hidden>
+    <div class="explore-head">
+      <div>
+        <h1 id="explore-title">Pokémon</h1>
+        <p class="muted" id="explore-count"></p>
+      </div>
+      <div class="explore-search"><input id="explore-q" type="search" placeholder="Search in Pokémon" autocomplete="off"></div>
+    </div>
+    <div class="chips" id="explore-chips">
+      <button data-f="featured" class="active">Featured</button><button data-f="all">All</button><button data-f="grade10">Grade 10</button><button data-f="under600">Under €600</button><button data-f="live">Live on-chain</button>
+    </div>
+    <p class="notice"><i></i><b>Data in progress</b><span id="explore-note"></span></p>
+    <div class="shelf"><h2>Top cards <span class="chev">›</span></h2><div class="rail" id="shelf-top"></div></div>
+    <div class="shelf"><h2>Recently added <span class="chev">›</span></h2><div class="rail" id="shelf-new"></div></div>
+    <div class="shelf"><h2>Live on-chain <span class="chev">›</span></h2><div class="rail" id="shelf-live"></div></div>
+  </section>
+
   <section id="card" class="section card-section" hidden>
 
     <aside class="card-visual">

@@ -96,8 +96,13 @@ function bindControls() {
 function selectTab(b) {
     $("#market-tabs .active")?.classList.remove("active"); b.classList.add("active");
     $("#card").hidden = b.dataset.cat !== "Pokémon";
+    // Pokémon has its own explore page (shelves of real slabs); the other tabs keep the market section
+    const explore = b.dataset.cat === "Pokémon";
+    $("#explore").hidden = !explore; $("#market").hidden = explore;
     if (b.dataset.cat === "cap") return showMarketCap();
-    $("#cap-grid").hidden = true; $("#cap-filter").hidden = true; $("#overview").hidden = true; $("#cap-bar").hidden = true; $("#market-table-wrap").hidden = false;
+    $("#cap-grid").hidden = true; $("#cap-filter").hidden = true; $("#overview").hidden = true; $("#cap-bar").hidden = true;
+    if (explore) { renderExplore(); return; }
+    $("#market-table-wrap").hidden = false;
     document.body.classList.remove("wide");
     $("#market-title").textContent = "Top cards";
     $("#market-sub").textContent = "Public price, 24h change, volume and sales. Every sale is a Stellar transaction, visible to anyone.";
@@ -402,3 +407,30 @@ $("#cap-filter").addEventListener("click", (e) => {
 });
 bindSort($("#ov-table"), "ov", renderOverview);
 bindSort($("#cap-table"), "cap", renderMarketCap);
+
+
+/* ---------- Explore a game: shelves of real slabs (data/pokemon.json) ---------- */
+let POKE, EXF = "featured";
+async function renderExplore() {
+  POKE = POKE || await (await fetch("data/pokemon.json")).json();
+  $("#explore-count").textContent = `${POKE.cards.length} cards in the vault`;
+  $("#explore-note").textContent = " — " + POKE.note;
+  const q = ($("#explore-q").value || "").trim().toLowerCase();
+  let cards = POKE.cards.filter((c) => !q || (c.name + " " + c.set + " " + c.grade).toLowerCase().includes(q));
+  if (EXF === "grade10") cards = cards.filter((c) => /\b10$/.test(c.grade));
+  if (EXF === "under600") cards = cards.filter((c) => c.price < 600);
+  if (EXF === "live") cards = cards.filter((c) => c.live);
+  const tile = (c, i) => `<div class="tile" onclick="openCard()">
+      <div class="pic"><img src="${c.image}" alt="${c.name} ${c.grade}" loading="lazy">${i != null ? `<span class="rank">${i + 1}</span>` : ""}${c.live ? '<span class="live-tag"><span class="live-dot"></span>On-chain</span>' : ""}</div>
+      <div class="nm">${c.name}<span class="grade-chip">${c.grade}</span></div>
+      <div class="pr"><b>€${fmt(c.price)}</b> · ${c.live ? "order book" : "asking price"}</div></div>`;
+  const fill = (id, list, ranked) => { $(id).innerHTML = list.length ? list.map((c, i) => tile(c, ranked ? i : null)).join("") : `<div class="empty">No card matches</div>`; };
+  fill("#shelf-top", [...cards].sort((a, b) => b.price - a.price), true);
+  fill("#shelf-new", [...cards].sort((a, b) => b.listed.localeCompare(a.listed)), false);
+  fill("#shelf-live", cards.filter((c) => c.live), false);
+}
+$("#explore-q").addEventListener("input", renderExplore);
+$("#explore-chips").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  $("#explore-chips .active")?.classList.remove("active"); b.classList.add("active"); EXF = b.dataset.f; renderExplore();
+});
