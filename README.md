@@ -6,7 +6,7 @@
 
 Built for HackMeridian 2026 (Stellar, Lisbon). Everything described as *deployed* below runs on Stellar testnet, with real transactions you can open in the explorer.
 
-**Live demo:** https://card-place-337081298177.europe-west1.run.app (web marketplace; `/mobile-app/` for the phone version, open it at 390 px wide). The on-chain card record comes from the appraisal agent, which is not deployed yet, so that one block shows as unavailable; prices and trades are read live from Stellar Horizon.
+**Live demo:** https://card-place-demo-337081298177.europe-west1.run.app (web marketplace; `/mobile-app/` for the phone version, open it at 390 px wide). The on-chain card record comes from the appraisal agent, which is not deployed yet, so that one block shows as unavailable; prices and trades are read live from Stellar Horizon.
 
 ## The pitch in pictures
 
