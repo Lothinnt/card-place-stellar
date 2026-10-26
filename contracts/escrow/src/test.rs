@@ -2,10 +2,42 @@
 
 use super::*;
 use soroban_sdk::{
+    contract, contractimpl,
     testutils::{Address as _, Ledger as _},
     token::{StellarAssetClient, TokenClient},
-    Address, Env, Symbol,
+    Address, BytesN, Env, String, Symbol,
 };
+
+/// Un coffre de test : connaît une seule carte, dans l'état qu'on lui donne.
+#[contract]
+pub struct FakeVault;
+
+#[contractimpl]
+impl FakeVault {
+    pub fn __constructor(env: Env, known: Symbol, status: CardStatus) {
+        env.storage().instance().set(&Symbol::new(&env, "known"), &known);
+        env.storage().instance().set(&Symbol::new(&env, "status"), &status);
+    }
+    pub fn get_card(env: Env, asset_code: Symbol) -> Result<Card, soroban_sdk::Error> {
+        let known: Symbol = env.storage().instance().get(&Symbol::new(&env, "known")).unwrap();
+        if asset_code != known {
+            return Err(soroban_sdk::Error::from_contract_error(2));
+        }
+        let status: CardStatus = env.storage().instance().get(&Symbol::new(&env, "status")).unwrap();
+        Ok(Card {
+            token: env.current_contract_address(),
+            grader: Symbol::new(&env, "PSA"),
+            cert: Symbol::new(&env, "137798077"),
+            grade: 10,
+            description: String::from_str(&env, "Zekrom ex"),
+            photo_hash: BytesN::from_array(&env, &[7u8; 32]),
+            status,
+            redeemer: None,
+            tracking: None,
+            registered_at: 1,
+        })
+    }
+}
 
 const PRICE: i128 = 943_0000000; // 943 USDC
 const WEEK: u32 = 120_960; // ~7 jours de ledgers
@@ -13,6 +45,7 @@ const BUYER_FUNDS: i128 = 2_000_0000000; // 2 000 USDC
 
 struct Setup {
     env: Env,
+    vault: Address,
     custodian: Address,
     buyer: Address,
     seller: Address,
@@ -21,8 +54,13 @@ struct Setup {
     card: Symbol,
 }
 
-/// Dépositaire, acheteur avec 2 000 USDC, vendeur, un USDC de test (SAC) et le contrat.
+/// Dépositaire, acheteur avec 2 000 USDC, vendeur, un USDC de test (SAC), un coffre
+/// qui tient `PSA137798077` en état `InVault`, et le contrat.
 fn setup() -> Setup {
+    setup_with_vault(CardStatus::InVault)
+}
+
+fn setup_with_vault(status: CardStatus) -> Setup {
     let env = Env::default();
     env.mock_all_auths();
     env.ledger().with_mut(|l| l.sequence_number = 1_000);
@@ -35,15 +73,18 @@ fn setup() -> Setup {
     let sac = env.register_stellar_asset_contract_v2(issuer);
     StellarAssetClient::new(&env, &sac.address()).mint(&buyer, &BUYER_FUNDS);
 
-    let id = env.register(CardEscrow, (&custodian, &sac.address()));
+    let card = Symbol::new(&env, "PSA137798077");
+    let vault = env.register(FakeVault, (&card, status));
+    let id = env.register(CardEscrow, (&custodian, &sac.address(), &vault));
     Setup {
         env: env.clone(),
+        vault,
         custodian,
         buyer,
         seller,
         usdc: TokenClient::new(&env, &sac.address()),
         escrow: CardEscrowClient::new(&env, &id),
-        card: Symbol::new(&env, "PSA137798077"),
+        card,
     }
 }
 
@@ -56,6 +97,29 @@ fn constructor_sets_roles() {
     let s = setup();
     assert_eq!(s.escrow.custodian(), s.custodian);
     assert_eq!(s.escrow.token(), s.usdc.address);
+    assert_eq!(s.escrow.vault(), s.vault);
+}
+
+#[test]
+fn release_refuses_a_card_unknown_to_the_vault() {
+    let s = setup();
+    let id = s.escrow.open(&s.buyer, &s.seller, &Symbol::new(&s.env, "PSA000000000"), &PRICE, &WEEK);
+    assert_eq!(s.escrow.try_release(&id), Err(Ok(Error::CardNotInVault)));
+    // l'argent n'a pas bougé
+    assert_eq!(s.usdc.balance(&s.escrow.address), PRICE);
+    assert_eq!(s.usdc.balance(&s.seller), 0);
+    assert_eq!(s.escrow.get_trade(&id).status, Status::Funded);
+}
+
+#[test]
+fn release_refuses_a_card_that_left_the_vault() {
+    let s = setup_with_vault(CardStatus::Shipped);
+    let id = open(&s);
+    assert_eq!(s.escrow.try_release(&id), Err(Ok(Error::CardNotInVault)));
+    assert_eq!(s.usdc.balance(&s.seller), 0);
+    // le dépositaire peut toujours rembourser l'acheteur
+    s.escrow.refund(&s.custodian, &id);
+    assert_eq!(s.usdc.balance(&s.buyer), BUYER_FUNDS);
 }
 
 #[test]

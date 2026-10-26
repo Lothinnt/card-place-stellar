@@ -22,7 +22,7 @@ Card Place (A safer way to buy and sell trading cards) : escrow et registre on-c
 
 ```sh
 # contrat
-cargo test                       # 24 tests : 11 coffre + 13 escrow, avec des SAC de test
+cargo test                       # 26 tests : 11 coffre + 15 escrow, avec des SAC de test
 stellar contract build           # → target/wasm32v1-none/release/{card_vault,card_escrow}.wasm
 
 # agent

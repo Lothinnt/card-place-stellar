@@ -66,12 +66,14 @@ Two complete on-chain journeys, executed with a real card from our stock (2025 P
 4. The holder returns the token and requests the card. → `redeem` (the SAC burns the token)
 5. The custodian confirms shipping with the tracking number. → `mark_shipped`
 
-**The escrow.**
-1. The buyer deposits 943 USDC for the card. → `open` — the USDC leaves the buyer's account for the contract's.
-2. The custodian receives and checks the card, and releases the funds. → `release` — the seller receives 943 USDC.
-3. A second trade, 50 USDC, for a card that fails inspection: the custodian refunds. → `refund` — the buyer gets their 50 USDC back.
+**The escrow** (`demo/demo.sh` replays it end to end).
+1. A second real card from our stock, a Lugia V PSA 10 (cert 86768374), enters the vault. → `register_card`
+2. The buyer deposits 943 USDC for it. → `open` — the USDC leaves the buyer's account for the contract's.
+3. The custodian checks the card and releases the funds. → `release` — the escrow reads the vault, sees the card `InVault`, and pays the seller 943 USDC.
+4. The trap: a buyer deposits 50 USDC for the Zekrom, which already left the vault (`Shipped`). The custodian tries to release: **the contract refuses** (`CardNotInVault`). No card in the vault, no payment.
+5. The custodian refunds. → `refund` — the buyer gets their 50 USDC back.
 
-Both contracts are small, fully commented, and covered by unit tests (11 for the vault, 13 for the escrow).
+Both contracts are small, fully commented, and covered by unit tests (11 for the vault, 15 for the escrow).
 
 ## Why Stellar
 
@@ -102,15 +104,15 @@ Source: [`docs/architecture.excalidraw`](docs/architecture.excalidraw), editable
 
 | Function | Auth | Inputs | Output | Effect |
 |---|---|---|---|---|
-| `__constructor(custodian, token)` | deployment | `Address, Address` | — | sets the custodian and the payment asset (USDC SAC) |
+| `__constructor(custodian, token, vault)` | deployment | `Address, Address, Address` | — | sets the custodian, the payment asset (USDC SAC) and the vault contract |
 | `open(buyer, seller, card, amount, deadline_ledgers)` | buyer | `Address, Address, Symbol, i128, u32` | `Result<u32, Error>` | transfers `amount` from the buyer to the contract, creates the trade, state `Funded`. Returns the trade id. Errors `InvalidAmount` (3), `SameParty` (5) |
-| `release(trade_id)` | custodian | `u32` | `Result<(), Error>` | transfers `amount` from the contract to the seller, state `Released`. Errors `TradeNotFound` (1), `InvalidStatus` (2) |
+| `release(trade_id)` | custodian | `u32` | `Result<(), Error>` | asks the vault for the card's record; if it is not `InVault`, refuses with `CardNotInVault` (6) and nothing moves. Otherwise transfers `amount` from the contract to the seller, state `Released`. Errors `TradeNotFound` (1), `InvalidStatus` (2) |
 | `refund(caller, trade_id)` | caller | `Address, u32` | `Result<(), Error>` | transfers `amount` back to the buyer, state `Refunded`. The custodian can call it any time; the buyer only after `deadline`. Error `NotExpired` (4) |
 | `get_trade(trade_id)` | none | `u32` | `Result<Trade, Error>` | public read |
 
 **`Trade` record.** `buyer`, `seller`, `card` (asset code of the card, link to the vault), `amount` (7 decimals), `status`, `opened_at`, `deadline` (ledger).
 
-**Invariants.** A trade leaves `Funded` exactly once, to `Released` or `Refunded`. The amount that leaves the contract equals the amount deposited. The seller can never trigger a refund. 13 unit tests cover both paths, the deadline, and every rejection.
+**Invariants.** A trade leaves `Funded` exactly once, to `Released` or `Refunded`. The amount that leaves the contract equals the amount deposited. The seller can never trigger a refund. **The seller is only paid for a card the vault holds**: `release` reads the vault contract on-chain and refuses otherwise. 15 unit tests cover both paths, the deadline, the vault check, and every rejection.
 
 ### Contract `contracts/vault` (Rust, `soroban-sdk` 28, target `wasm32v1-none`)
 
@@ -143,15 +145,17 @@ Both contracts keep their records in persistent storage with the TTL extended on
 | What | Address / transaction |
 |---|---|
 | Custodian and deployer | [`GBNZP4YND7GXOM26YNBOAXIMTEMKNHDX7CQ5VZOJ3VKW7HDJSQR3XK75`](https://stellar.expert/explorer/testnet/account/GBNZP4YND7GXOM26YNBOAXIMTEMKNHDX7CQ5VZOJ3VKW7HDJSQR3XK75) |
-| **Escrow contract** | [`CDZVLUGTZW4CW46XYGIL4BGOFGMQW6HJTHSDMEDMGDEOKN2EMW22IDTM`](https://stellar.expert/explorer/testnet/contract/CDZVLUGTZW4CW46XYGIL4BGOFGMQW6HJTHSDMEDMGDEOKN2EMW22IDTM) |
-| Escrow deployment | [`f60a82…6c336`](https://stellar.expert/explorer/testnet/tx/f60a823a5d7392029b836a0007c6cd24b9be777b5e234d95ba37e4d51636c336) |
+| **Escrow contract** | [`CBUFJVVLC2TY7MDKEQKDAFP7TXPKP6MEDW2XWESEKJFG5V6ZJUEVHNWG`](https://stellar.expert/explorer/testnet/contract/CBUFJVVLC2TY7MDKEQKDAFP7TXPKP6MEDW2XWESEKJFG5V6ZJUEVHNWG) |
+| Escrow deployment | [`a774e5…da2cb6`](https://stellar.expert/explorer/testnet/tx/a774e52af0cf961f2cd2090cd248c92f918dd9ae022ca0a60c011f5f1fda2cb6) |
 | USDC (testnet, SAC) | [`CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA`](https://stellar.expert/explorer/testnet/contract/CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA) |
 | Buyer | [`GCR6HZKROPDQY3KZBSC27KKYEB7RAJRDWEIEUQYIXHUA6D6WOVXTWVHH`](https://stellar.expert/explorer/testnet/account/GCR6HZKROPDQY3KZBSC27KKYEB7RAJRDWEIEUQYIXHUA6D6WOVXTWVHH) |
 | Seller | [`GDSMQRA65ZTZBFP57USVK6QNFZNZTCAPCTEDUYUKXEMSOIZAGKI4ZUPM`](https://stellar.expert/explorer/testnet/account/GDSMQRA65ZTZBFP57USVK6QNFZNZTCAPCTEDUYUKXEMSOIZAGKI4ZUPM) |
-| Trade 1 · `open`, 943 USDC locked | [`406af4…c85430`](https://stellar.expert/explorer/testnet/tx/406af426218d25a603bc1319151ef3596eaa1efbd0a084344af45140a3c85430) |
-| Trade 1 · `release`, seller paid | [`07db8e…b8da7`](https://stellar.expert/explorer/testnet/tx/07db8e46d48ee92d59eb04462bea682453b416c193524542b0da4878180b8da7) |
-| Trade 2 · `open`, 50 USDC locked | [`a3aa86…805316`](https://stellar.expert/explorer/testnet/tx/a3aa8640135fa935cfb84b96143cbfa355d25a3769255c4796a65c08fe805316) |
-| Trade 2 · `refund`, buyer reimbursed | [`1160c8…4f8c00`](https://stellar.expert/explorer/testnet/tx/1160c8477a586b6259553ef9258e673d0bbc27374ade4f0381e8a814e04f8c00) |
+| `register_card` Lugia V PSA 10, cert 86768374 | [`62be97…4259d8`](https://stellar.expert/explorer/testnet/tx/62be974cbcf8fdfc9253dbaa2b0be49218c74145906d46485ffa3bb8574259d8) |
+| Trade 1 · `open`, 943 USDC locked | [`f650d4…d2b4cd`](https://stellar.expert/explorer/testnet/tx/f650d4e823d9428abb6bd0681c149aacf7417cb6b2126fa6cbb349e883d2b4cd) |
+| Trade 1 · `release`, seller paid | [`d94698…820604`](https://stellar.expert/explorer/testnet/tx/d94698d3a9ad61da578589b1ef799f14f01111718b43f533374baff235820604) |
+| Trade 2 · `open`, 50 USDC locked for a card not in the vault | [`446b8e…dddbf2`](https://stellar.expert/explorer/testnet/tx/446b8e79f15ba21f794a0996a7c6e479cc90fa0205265389f21d4089addddbf2) |
+| Trade 2 · `release` refused by the contract (`CardNotInVault`) | simulation fails, nothing is sent: run `demo/demo.sh` to see it |
+| Trade 2 · `refund`, buyer reimbursed | [`1443e7…7f7fa2`](https://stellar.expert/explorer/testnet/tx/1443e72e998656d3ae39ab81a296f9666ccd583bb903f6d3e68aa262407f7fa2) |
 | **Vault contract** | [`CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO`](https://stellar.expert/explorer/testnet/contract/CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO) |
 | Vault deployment | [`5833d9…978d1`](https://stellar.expert/explorer/testnet/tx/5833d98dd4230adee7f78feb8b34dcf8d8a190cb453c7b0dbf224c1ab25978d1) |
 | Card asset `PSA137798077` (SAC) | [`CASKFD5AFFRLUEW6YJUQRSTXJ7MQU7ZMUCMW254G4CR5QJ45Q5DYNVKH`](https://stellar.expert/explorer/testnet/contract/CASKFD5AFFRLUEW6YJUQRSTXJ7MQU7ZMUCMW254G4CR5QJ45Q5DYNVKH) |
@@ -169,7 +173,7 @@ Prerequisites: Rust + the `wasm32v1-none` target, [Stellar CLI](https://develope
 ### 1. Contracts
 
 ```sh
-cargo test                                   # 24 tests: 11 vault + 13 escrow
+cargo test                                   # 26 tests: 11 vault + 15 escrow
 stellar contract build                       # target/wasm32v1-none/release/{card_vault,card_escrow}.wasm
 
 MOI=$(stellar keys address moi)
@@ -182,10 +186,12 @@ USDC=$(stellar contract id asset --asset USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3D
 stellar contract deploy \
   --wasm target/wasm32v1-none/release/card_escrow.wasm \
   --source-account moi --network testnet --alias escrow \
-  -- --custodian "$MOI" --token "$USDC"
+  -- --custodian "$MOI" --token "$USDC" --vault "$(stellar contract alias show vault --network testnet)"
 ```
 
 ### 2. The escrow cycle
+
+Or run everything at once, with the explorer link opened at each step: `sh demo/demo.sh`.
 
 The buyer and the seller both need a USDC trustline (`stellar tx new change-trust --source-account <who> --line USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5 --network testnet`), and the buyer some testnet USDC ([Circle faucet](https://faucet.circle.com), Stellar network).
 
@@ -286,7 +292,8 @@ Then: a physical fingerprint of the card (high-resolution scan under fixed light
 
 ```
 contracts/escrow/src/lib.rs   # the escrow contract, commented
-contracts/escrow/src/test.rs  # 13 tests
+contracts/escrow/src/test.rs  # 15 tests
+demo/demo.sh                  # the live demo: vault + escrow, end to end on testnet
 contracts/vault/src/lib.rs    # the vault contract, commented
 contracts/vault/src/test.rs   # 11 tests
 apps/agent/src/               # config, vault, photos, appraise, paywall, payer, server

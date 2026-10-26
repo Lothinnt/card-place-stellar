@@ -8,6 +8,8 @@
 //! - Le dépositaire reçoit la carte, l'inspecte, et choisit : `release` (la carte est
 //!   conforme, le contrat paie le vendeur) ou `refund` (la carte ne l'est pas, le
 //!   contrat rembourse l'acheteur).
+//! - `release` ne paie que si le contrat coffre confirme que la carte est bien entrée
+//!   en coffre (`InVault`) : l'argent ne sort jamais pour une carte qui n'est pas là.
 //! - Si rien ne se passe avant l'échéance, l'acheteur peut se rembourser lui-même :
 //!   son argent ne reste jamais bloqué.
 //!
@@ -19,12 +21,46 @@
 //!
 //! Invariants :
 //! - Un échange ne quitte l'état `Funded` qu'une seule fois : vers `Released` ou `Refunded`.
+//! - `release` exige que le coffre connaisse la carte et la tienne en état `InVault`.
 //! - Le montant qui sort du contrat est exactement le montant déposé.
 //! - Aucune IA, aucun oracle : seules les règles écrites ici déplacent l'argent.
 
 #![no_std]
 
-use soroban_sdk::{contract, contracterror, contractimpl, contracttype, token, Address, Env, Symbol};
+use soroban_sdk::{
+    contract, contractclient, contracterror, contractimpl, contracttype, token, Address, BytesN,
+    Env, String, Symbol,
+};
+
+/// Ce que l'escrow lit dans le contrat coffre (`contracts/vault`) : la fiche d'une carte.
+/// Les types doivent rester identiques à ceux du coffre.
+#[contracttype]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum CardStatus {
+    InVault = 0,
+    RedeemRequested = 1,
+    Shipped = 2,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Card {
+    pub token: Address,
+    pub grader: Symbol,
+    pub cert: Symbol,
+    pub grade: u32,
+    pub description: String,
+    pub photo_hash: BytesN<32>,
+    pub status: CardStatus,
+    pub redeemer: Option<Address>,
+    pub tracking: Option<String>,
+    pub registered_at: u32,
+}
+
+#[contractclient(name = "VaultClient")]
+pub trait VaultInterface {
+    fn get_card(env: Env, asset_code: Symbol) -> Result<Card, soroban_sdk::Error>;
+}
 
 /// Durée de vie du stockage persistant, en ledgers (~5 s / ledger).
 const TTL_THRESHOLD: u32 = 518_400; // 30 jours
@@ -44,6 +80,8 @@ pub enum Error {
     NotExpired = 4,
     /// L'acheteur et le vendeur doivent être deux adresses distinctes.
     SameParty = 5,
+    /// Le coffre ne tient pas cette carte en état `InVault` : rien n'est payé.
+    CardNotInVault = 6,
 }
 
 /// État d'un échange.
@@ -82,6 +120,8 @@ enum DataKey {
     Custodian,
     /// Adresse du Stellar Asset Contract de l'actif de paiement, ex. USDC (instance storage).
     Token,
+    /// Adresse du contrat coffre, consulté avant de payer le vendeur (instance storage).
+    Vault,
     /// Prochain identifiant d'échange (instance storage).
     NextId,
     /// Un échange, par identifiant (persistent storage).
@@ -93,10 +133,11 @@ pub struct CardEscrow;
 
 #[contractimpl]
 impl CardEscrow {
-    /// Déploiement : fixe le dépositaire et l'actif de paiement une fois pour toutes.
-    pub fn __constructor(env: Env, custodian: Address, token: Address) {
+    /// Déploiement : fixe le dépositaire, l'actif de paiement et le contrat coffre.
+    pub fn __constructor(env: Env, custodian: Address, token: Address, vault: Address) {
         env.storage().instance().set(&DataKey::Custodian, &custodian);
         env.storage().instance().set(&DataKey::Token, &token);
+        env.storage().instance().set(&DataKey::Vault, &vault);
         env.storage().instance().set(&DataKey::NextId, &1u32);
     }
 
@@ -108,6 +149,11 @@ impl CardEscrow {
     /// Adresse du contrat de l'actif de paiement.
     pub fn token(env: Env) -> Address {
         env.storage().instance().get(&DataKey::Token).expect("token not set")
+    }
+
+    /// Adresse du contrat coffre.
+    pub fn vault(env: Env) -> Address {
+        env.storage().instance().get(&DataKey::Vault).expect("vault not set")
     }
 
     /// L'acheteur ouvre un échange : `amount` est transféré de son compte vers le contrat.
@@ -155,12 +201,23 @@ impl CardEscrow {
     }
 
     /// Carte reçue et conforme : le dépositaire libère les fonds vers le vendeur.
+    ///
+    /// Le contrat vérifie d'abord auprès du coffre que la carte y est bien entrée
+    /// (`InVault`). Sans cette fiche, l'appel échoue et l'argent reste bloqué.
     pub fn release(env: Env, trade_id: u32) -> Result<(), Error> {
         Self::custodian(env.clone()).require_auth();
 
         let mut trade = Self::load(&env, trade_id)?;
         if trade.status != Status::Funded {
             return Err(Error::InvalidStatus);
+        }
+
+        let in_vault = VaultClient::new(&env, &Self::vault(env.clone()))
+            .try_get_card(&trade.card)
+            .map(|r| r.map(|c| c.status == CardStatus::InVault).unwrap_or(false))
+            .unwrap_or(false);
+        if !in_vault {
+            return Err(Error::CardNotInVault);
         }
 
         token::Client::new(&env, &Self::token(env.clone())).transfer(
