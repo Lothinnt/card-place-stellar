@@ -10,6 +10,9 @@
 //!   contrat rembourse l'acheteur).
 //! - `release` ne paie que si le contrat coffre confirme que la carte est bien entrée
 //!   en coffre (`InVault`) : l'argent ne sort jamais pour une carte qui n'est pas là.
+//! - Entre les deux, `settle` : la carte est conforme mais le vendeur a manqué à une
+//!   obligation (retard d'envoi, par exemple). Le dépositaire rend une partie du montant
+//!   à l'acheteur et verse le reste au vendeur, en une seule transaction.
 //! - Si rien ne se passe avant l'échéance, l'acheteur peut se rembourser lui-même :
 //!   son argent ne reste jamais bloqué.
 //!
@@ -20,7 +23,7 @@
 //! - `seller` : reçoit les fonds à la libération.
 //!
 //! Invariants :
-//! - Un échange ne quitte l'état `Funded` qu'une seule fois : vers `Released` ou `Refunded`.
+//! - Un échange ne quitte l'état `Funded` qu'une seule fois : vers `Released`, `Settled` ou `Refunded`.
 //! - `release` exige que le coffre connaisse la carte et la tienne en état `InVault`.
 //! - Le montant qui sort du contrat est exactement le montant déposé.
 //! - Aucune IA, aucun oracle : seules les règles écrites ici déplacent l'argent.
@@ -82,6 +85,8 @@ pub enum Error {
     SameParty = 5,
     /// Le coffre ne tient pas cette carte en état `InVault` : rien n'est payé.
     CardNotInVault = 6,
+    /// La part remboursée doit être comprise entre 0 et le montant déposé.
+    InvalidSplit = 7,
 }
 
 /// État d'un échange.
@@ -94,6 +99,8 @@ pub enum Status {
     Released = 1,
     /// Carte non conforme ou échéance passée : les fonds sont revenus à l'acheteur.
     Refunded = 2,
+    /// Carte conforme mais pénalité : une part à l'acheteur, le reste au vendeur.
+    Settled = 3,
 }
 
 /// Un échange sous escrow.
@@ -106,6 +113,8 @@ pub struct Trade {
     pub card: Symbol,
     /// Montant déposé, en unités de base de l'actif de paiement (7 décimales).
     pub amount: i128,
+    /// Part rendue à l'acheteur (0 sauf `Refunded` ou `Settled`).
+    pub refunded: i128,
     pub status: Status,
     /// Ledger d'ouverture.
     pub opened_at: u32,
@@ -192,6 +201,7 @@ impl CardEscrow {
             seller,
             card,
             amount,
+            refunded: 0,
             status: Status::Funded,
             opened_at: now,
             deadline: now.saturating_add(deadline_ledgers),
@@ -212,11 +222,7 @@ impl CardEscrow {
             return Err(Error::InvalidStatus);
         }
 
-        let in_vault = VaultClient::new(&env, &Self::vault(env.clone()))
-            .try_get_card(&trade.card)
-            .map(|r| r.map(|c| c.status == CardStatus::InVault).unwrap_or(false))
-            .unwrap_or(false);
-        if !in_vault {
+        if !Self::card_in_vault(&env, &trade.card) {
             return Err(Error::CardNotInVault);
         }
 
@@ -252,7 +258,42 @@ impl CardEscrow {
             &trade.buyer,
             &trade.amount,
         );
+        trade.refunded = trade.amount;
         trade.status = Status::Refunded;
+        Self::save(&env, trade_id, &trade);
+        Ok(())
+    }
+
+    /// Carte conforme, mais le vendeur a manqué à une obligation (retard d'envoi…) :
+    /// le dépositaire rend `refund_amount` à l'acheteur et verse le reste au vendeur.
+    ///
+    /// Comme `release`, exige que le coffre tienne la carte (`InVault`).
+    /// `refund_amount` = 0 équivaut à `release`, = `amount` équivaut à `refund`.
+    pub fn settle(env: Env, trade_id: u32, refund_amount: i128) -> Result<(), Error> {
+        Self::custodian(env.clone()).require_auth();
+
+        let mut trade = Self::load(&env, trade_id)?;
+        if trade.status != Status::Funded {
+            return Err(Error::InvalidStatus);
+        }
+        if refund_amount < 0 || refund_amount > trade.amount {
+            return Err(Error::InvalidSplit);
+        }
+        if !Self::card_in_vault(&env, &trade.card) {
+            return Err(Error::CardNotInVault);
+        }
+
+        let token = token::Client::new(&env, &Self::token(env.clone()));
+        let me = env.current_contract_address();
+        if refund_amount > 0 {
+            token.transfer(&me, &trade.buyer, &refund_amount);
+        }
+        let to_seller = trade.amount - refund_amount;
+        if to_seller > 0 {
+            token.transfer(&me, &trade.seller, &to_seller);
+        }
+        trade.refunded = refund_amount;
+        trade.status = Status::Settled;
         Self::save(&env, trade_id, &trade);
         Ok(())
     }
@@ -263,6 +304,14 @@ impl CardEscrow {
     }
 
     // ----- helpers privés -----
+
+    /// Demande au coffre si la carte y est bien, en état `InVault`.
+    fn card_in_vault(env: &Env, card: &Symbol) -> bool {
+        VaultClient::new(env, &Self::vault(env.clone()))
+            .try_get_card(card)
+            .map(|r| r.map(|c| c.status == CardStatus::InVault).unwrap_or(false))
+            .unwrap_or(false)
+    }
 
     fn load(env: &Env, id: u32) -> Result<Trade, Error> {
         env.storage().persistent().get(&DataKey::Trade(id)).ok_or(Error::TradeNotFound)

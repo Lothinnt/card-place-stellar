@@ -72,8 +72,9 @@ Two complete on-chain journeys, executed with a real card from our stock (2025 P
 3. The custodian checks the card and releases the funds. → `release` — the escrow reads the vault, sees the card `InVault`, and pays the seller 943 USDC.
 4. The trap: a buyer deposits 50 USDC for the Zekrom, which already left the vault (`Shipped`). The custodian tries to release: **the contract refuses** (`CardNotInVault`). No card in the vault, no payment.
 5. The custodian refunds. → `refund` — the buyer gets their 50 USDC back.
+6. A partial refund: 943 USDC locked for the Lugia, which arrives late because of the seller. → `settle` with 50 USDC back to the buyer: the seller receives 893 USDC, the buyer 50, in one transaction.
 
-Both contracts are small, fully commented, and covered by unit tests (11 for the vault, 15 for the escrow).
+Both contracts are small, fully commented, and covered by unit tests (11 for the vault, 18 for the escrow).
 
 ## Why Stellar
 
@@ -107,12 +108,13 @@ Source: [`docs/architecture.excalidraw`](docs/architecture.excalidraw), editable
 | `__constructor(custodian, token, vault)` | deployment | `Address, Address, Address` | — | sets the custodian, the payment asset (USDC SAC) and the vault contract |
 | `open(buyer, seller, card, amount, deadline_ledgers)` | buyer | `Address, Address, Symbol, i128, u32` | `Result<u32, Error>` | transfers `amount` from the buyer to the contract, creates the trade, state `Funded`. Returns the trade id. Errors `InvalidAmount` (3), `SameParty` (5) |
 | `release(trade_id)` | custodian | `u32` | `Result<(), Error>` | asks the vault for the card's record; if it is not `InVault`, refuses with `CardNotInVault` (6) and nothing moves. Otherwise transfers `amount` from the contract to the seller, state `Released`. Errors `TradeNotFound` (1), `InvalidStatus` (2) |
+| `settle(trade_id, refund_amount)` | custodian | `u32, i128` | `Result<(), Error>` | genuine card but a seller fault (late shipping…): returns `refund_amount` to the buyer and pays the rest to the seller, in one transaction, state `Settled`. Same vault check as `release`. Error `InvalidSplit` (7) if the part is not between 0 and `amount` |
 | `refund(caller, trade_id)` | caller | `Address, u32` | `Result<(), Error>` | transfers `amount` back to the buyer, state `Refunded`. The custodian can call it any time; the buyer only after `deadline`. Error `NotExpired` (4) |
 | `get_trade(trade_id)` | none | `u32` | `Result<Trade, Error>` | public read |
 
-**`Trade` record.** `buyer`, `seller`, `card` (asset code of the card, link to the vault), `amount` (7 decimals), `status`, `opened_at`, `deadline` (ledger).
+**`Trade` record.** `buyer`, `seller`, `card` (asset code of the card, link to the vault), `amount` (7 decimals), `refunded` (the part returned to the buyer), `status`, `opened_at`, `deadline` (ledger).
 
-**Invariants.** A trade leaves `Funded` exactly once, to `Released` or `Refunded`. The amount that leaves the contract equals the amount deposited. The seller can never trigger a refund. **The seller is only paid for a card the vault holds**: `release` reads the vault contract on-chain and refuses otherwise. 15 unit tests cover both paths, the deadline, the vault check, and every rejection.
+**Invariants.** A trade leaves `Funded` exactly once, to `Released`, `Settled` or `Refunded`. The amount that leaves the contract equals the amount deposited: buyer's part + seller's part. The seller can never trigger a refund. **The seller is only paid for a card the vault holds**: `release` reads the vault contract on-chain and refuses otherwise. 18 unit tests cover both paths, the deadline, the vault check, and every rejection.
 
 ### Contract `contracts/vault` (Rust, `soroban-sdk` 28, target `wasm32v1-none`)
 
@@ -145,8 +147,8 @@ Both contracts keep their records in persistent storage with the TTL extended on
 | What | Address / transaction |
 |---|---|
 | Custodian and deployer | [`GBNZP4YND7GXOM26YNBOAXIMTEMKNHDX7CQ5VZOJ3VKW7HDJSQR3XK75`](https://stellar.expert/explorer/testnet/account/GBNZP4YND7GXOM26YNBOAXIMTEMKNHDX7CQ5VZOJ3VKW7HDJSQR3XK75) |
-| **Escrow contract** | [`CBUFJVVLC2TY7MDKEQKDAFP7TXPKP6MEDW2XWESEKJFG5V6ZJUEVHNWG`](https://stellar.expert/explorer/testnet/contract/CBUFJVVLC2TY7MDKEQKDAFP7TXPKP6MEDW2XWESEKJFG5V6ZJUEVHNWG) |
-| Escrow deployment | [`a774e5…da2cb6`](https://stellar.expert/explorer/testnet/tx/a774e52af0cf961f2cd2090cd248c92f918dd9ae022ca0a60c011f5f1fda2cb6) |
+| **Escrow contract** | [`CC2NP5O5E5L4463WLWTEPXOR3KEBYY7FMQMZT56TYLBJUVCP3DJHLG2O`](https://stellar.expert/explorer/testnet/contract/CC2NP5O5E5L4463WLWTEPXOR3KEBYY7FMQMZT56TYLBJUVCP3DJHLG2O) |
+| Escrow deployment | [`4115cf…5edffe`](https://stellar.expert/explorer/testnet/tx/4115cf66549a88a1f4de54311ac1b271cbdd3d3334a3084f2df79feba95edffe) |
 | USDC (testnet, SAC) | [`CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA`](https://stellar.expert/explorer/testnet/contract/CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA) |
 | Buyer | [`GCR6HZKROPDQY3KZBSC27KKYEB7RAJRDWEIEUQYIXHUA6D6WOVXTWVHH`](https://stellar.expert/explorer/testnet/account/GCR6HZKROPDQY3KZBSC27KKYEB7RAJRDWEIEUQYIXHUA6D6WOVXTWVHH) |
 | Seller | [`GDSMQRA65ZTZBFP57USVK6QNFZNZTCAPCTEDUYUKXEMSOIZAGKI4ZUPM`](https://stellar.expert/explorer/testnet/account/GDSMQRA65ZTZBFP57USVK6QNFZNZTCAPCTEDUYUKXEMSOIZAGKI4ZUPM) |
@@ -155,6 +157,8 @@ Both contracts keep their records in persistent storage with the TTL extended on
 | Trade 1 · `release`, seller paid | [`d94698…820604`](https://stellar.expert/explorer/testnet/tx/d94698d3a9ad61da578589b1ef799f14f01111718b43f533374baff235820604) |
 | Trade 2 · `open`, 50 USDC locked for a card not in the vault | [`446b8e…dddbf2`](https://stellar.expert/explorer/testnet/tx/446b8e79f15ba21f794a0996a7c6e479cc90fa0205265389f21d4089addddbf2) |
 | Trade 2 · `release` refused by the contract (`CardNotInVault`) | simulation fails, nothing is sent: run `demo/demo.sh` to see it |
+| Partial refund · `open` 943 USDC for the Lugia | [`8f28c8…fcf01e`](https://stellar.expert/explorer/testnet/tx/8f28c848bdd3b281a43f3ff8216f7ed8f5e11440ef102bee825f736ee0fcf01e) |
+| Partial refund · `settle`, 50 USDC → buyer, 893 USDC → seller | [`c59e2c…79a77e`](https://stellar.expert/explorer/testnet/tx/c59e2c1237f13747d7e6464e9308b22937d1214d209e2ac209991564af79a77e) |
 | Trade 2 · `refund`, buyer reimbursed | [`1443e7…7f7fa2`](https://stellar.expert/explorer/testnet/tx/1443e72e998656d3ae39ab81a296f9666ccd583bb903f6d3e68aa262407f7fa2) |
 | **Vault contract** | [`CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO`](https://stellar.expert/explorer/testnet/contract/CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO) |
 | Vault deployment | [`5833d9…978d1`](https://stellar.expert/explorer/testnet/tx/5833d98dd4230adee7f78feb8b34dcf8d8a190cb453c7b0dbf224c1ab25978d1) |
@@ -173,7 +177,7 @@ Prerequisites: Rust + the `wasm32v1-none` target, [Stellar CLI](https://develope
 ### 1. Contracts
 
 ```sh
-cargo test                                   # 26 tests: 11 vault + 15 escrow
+cargo test                                   # 29 tests: 11 vault + 18 escrow
 stellar contract build                       # target/wasm32v1-none/release/{card_vault,card_escrow}.wasm
 
 MOI=$(stellar keys address moi)
@@ -189,7 +193,7 @@ stellar contract deploy \
   -- --custodian "$MOI" --token "$USDC" --vault "$(stellar contract alias show vault --network testnet)"
 ```
 
-The two `deploy` commands register the `vault` and `escrow` aliases in your Stellar CLI config; everything below uses them. The contracts we deployed (table above) only accept our custodian key, so the write calls (`register_card`, `release`…) run against your own deployment. To read ours instead (`get_card`, `get_trade`): `stellar contract alias add vault --id CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO --network testnet` and `stellar contract alias add escrow --id CBUFJVVLC2TY7MDKEQKDAFP7TXPKP6MEDW2XWESEKJFG5V6ZJUEVHNWG --network testnet`.
+The two `deploy` commands register the `vault` and `escrow` aliases in your Stellar CLI config; everything below uses them. The contracts we deployed (table above) only accept our custodian key, so the write calls (`register_card`, `release`…) run against your own deployment. To read ours instead (`get_card`, `get_trade`): `stellar contract alias add vault --id CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO --network testnet` and `stellar contract alias add escrow --id CC2NP5O5E5L4463WLWTEPXOR3KEBYY7FMQMZT56TYLBJUVCP3DJHLG2O --network testnet`.
 
 ### 2. The escrow cycle
 
@@ -213,6 +217,9 @@ stellar contract invoke --id escrow --source-account collectionneur --network te
 
 # the custodian checks the card and pays the seller
 stellar contract invoke --id escrow --source-account moi --network testnet --send=yes -- release --trade_id 1
+
+# or, genuine card but late shipping: 50 USDC back to the buyer, the rest to the seller
+stellar contract invoke --id escrow --source-account moi --network testnet --send=yes -- settle --trade_id 1 --refund_amount 500000000
 
 # or, if the card fails inspection, refunds the buyer
 stellar contract invoke --id escrow --source-account moi --network testnet --send=yes -- refund --caller "$MOI" --trade_id 1
@@ -300,7 +307,7 @@ Then: a physical fingerprint of the card (high-resolution scan under fixed light
 
 ```
 contracts/escrow/src/lib.rs   # the escrow contract, commented
-contracts/escrow/src/test.rs  # 15 tests
+contracts/escrow/src/test.rs  # 18 tests
 demo/demo.sh                  # the live demo: vault + escrow, end to end on testnet
 contracts/vault/src/lib.rs    # the vault contract, commented
 contracts/vault/src/test.rs   # 11 tests

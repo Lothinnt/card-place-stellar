@@ -72,8 +72,9 @@ Deux parcours complets on-chain, exécutés avec une vraie carte de notre stock 
 3. Le dépositaire vérifie la carte et libère les fonds. → `release` — l'escrow lit le coffre, voit la carte `InVault`, et paie 943 USDC au vendeur.
 4. Le piège : un acheteur dépose 50 USDC pour le Zekrom, qui a déjà quitté le coffre (`Shipped`). Le dépositaire tente de libérer : **le contrat refuse** (`CardNotInVault`). Pas de carte en coffre, pas de paiement.
 5. Le dépositaire rembourse. → `refund` — l'acheteur récupère ses 50 USDC.
+6. Un remboursement partiel : 943 USDC bloqués pour le Lugia, qui arrive en retard par la faute du vendeur. → `settle` avec 50 USDC rendus à l'acheteur : le vendeur reçoit 893 USDC, l'acheteur 50, en une transaction.
 
-Les deux contrats sont courts, entièrement commentés, et couverts par des tests unitaires (11 pour le coffre, 15 pour l'escrow).
+Les deux contrats sont courts, entièrement commentés, et couverts par des tests unitaires (11 pour le coffre, 18 pour l'escrow).
 
 ## Pourquoi Stellar
 
@@ -107,12 +108,13 @@ Source : [`docs/architecture.excalidraw`](docs/architecture.excalidraw), modifia
 | `__constructor(custodian, token, vault)` | déploiement | `Address, Address, Address` | — | fixe le dépositaire, l'actif de paiement (SAC USDC) et le contrat coffre |
 | `open(buyer, seller, card, amount, deadline_ledgers)` | acheteur | `Address, Address, Symbol, i128, u32` | `Result<u32, Error>` | transfère `amount` de l'acheteur vers le contrat, crée l'échange, état `Funded`. Renvoie l'identifiant. Erreurs `InvalidAmount` (3), `SameParty` (5) |
 | `release(trade_id)` | dépositaire | `u32` | `Result<(), Error>` | demande au coffre la fiche de la carte ; si elle n'est pas `InVault`, refuse avec `CardNotInVault` (6) et rien ne bouge. Sinon transfère `amount` du contrat vers le vendeur, état `Released`. Erreurs `TradeNotFound` (1), `InvalidStatus` (2) |
+| `settle(trade_id, refund_amount)` | dépositaire | `u32, i128` | `Result<(), Error>` | carte conforme mais faute du vendeur (retard d'envoi…) : rend `refund_amount` à l'acheteur et verse le reste au vendeur, en une transaction, état `Settled`. Même contrôle du coffre que `release`. Erreur `InvalidSplit` (7) si la part n'est pas entre 0 et `amount` |
 | `refund(caller, trade_id)` | appelant | `Address, u32` | `Result<(), Error>` | rend `amount` à l'acheteur, état `Refunded`. Le dépositaire peut l'appeler à tout moment ; l'acheteur seulement après `deadline`. Erreur `NotExpired` (4) |
 | `get_trade(trade_id)` | aucune | `u32` | `Result<Trade, Error>` | lecture publique |
 
-**Fiche `Trade`.** `buyer`, `seller`, `card` (code d'actif de la carte, lien avec le coffre), `amount` (7 décimales), `status`, `opened_at`, `deadline` (ledger).
+**Fiche `Trade`.** `buyer`, `seller`, `card` (code d'actif de la carte, lien avec le coffre), `amount` (7 décimales), `refunded` (la part rendue à l'acheteur), `status`, `opened_at`, `deadline` (ledger).
 
-**Invariants.** Un échange quitte `Funded` exactement une fois, vers `Released` ou `Refunded`. Le montant qui sort du contrat est celui qui a été déposé. Le vendeur ne peut jamais déclencher un remboursement. **Le vendeur n'est payé que pour une carte que le coffre tient** : `release` lit le contrat coffre on-chain et refuse sinon. 15 tests unitaires couvrent les deux chemins, l'échéance, le contrôle du coffre et chaque refus.
+**Invariants.** Un échange quitte `Funded` exactement une fois, vers `Released`, `Settled` ou `Refunded`. Le montant qui sort du contrat est celui qui a été déposé : part de l'acheteur + part du vendeur. Le vendeur ne peut jamais déclencher un remboursement. **Le vendeur n'est payé que pour une carte que le coffre tient** : `release` lit le contrat coffre on-chain et refuse sinon. 18 tests unitaires couvrent les deux chemins, l'échéance, le contrôle du coffre et chaque refus.
 
 ### Contrat `contracts/vault` (Rust, `soroban-sdk` 28, cible `wasm32v1-none`)
 
@@ -145,8 +147,8 @@ Les deux contrats gardent leurs fiches en stockage persistant, TTL prolongé à 
 | Quoi | Adresse / transaction |
 |---|---|
 | Dépositaire et déployeur | [`GBNZP4YND7GXOM26YNBOAXIMTEMKNHDX7CQ5VZOJ3VKW7HDJSQR3XK75`](https://stellar.expert/explorer/testnet/account/GBNZP4YND7GXOM26YNBOAXIMTEMKNHDX7CQ5VZOJ3VKW7HDJSQR3XK75) |
-| **Contrat escrow** | [`CBUFJVVLC2TY7MDKEQKDAFP7TXPKP6MEDW2XWESEKJFG5V6ZJUEVHNWG`](https://stellar.expert/explorer/testnet/contract/CBUFJVVLC2TY7MDKEQKDAFP7TXPKP6MEDW2XWESEKJFG5V6ZJUEVHNWG) |
-| Déploiement de l'escrow | [`a774e5…da2cb6`](https://stellar.expert/explorer/testnet/tx/a774e52af0cf961f2cd2090cd248c92f918dd9ae022ca0a60c011f5f1fda2cb6) |
+| **Contrat escrow** | [`CC2NP5O5E5L4463WLWTEPXOR3KEBYY7FMQMZT56TYLBJUVCP3DJHLG2O`](https://stellar.expert/explorer/testnet/contract/CC2NP5O5E5L4463WLWTEPXOR3KEBYY7FMQMZT56TYLBJUVCP3DJHLG2O) |
+| Déploiement de l'escrow | [`4115cf…5edffe`](https://stellar.expert/explorer/testnet/tx/4115cf66549a88a1f4de54311ac1b271cbdd3d3334a3084f2df79feba95edffe) |
 | USDC (testnet, SAC) | [`CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA`](https://stellar.expert/explorer/testnet/contract/CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA) |
 | Acheteur | [`GCR6HZKROPDQY3KZBSC27KKYEB7RAJRDWEIEUQYIXHUA6D6WOVXTWVHH`](https://stellar.expert/explorer/testnet/account/GCR6HZKROPDQY3KZBSC27KKYEB7RAJRDWEIEUQYIXHUA6D6WOVXTWVHH) |
 | Vendeur | [`GDSMQRA65ZTZBFP57USVK6QNFZNZTCAPCTEDUYUKXEMSOIZAGKI4ZUPM`](https://stellar.expert/explorer/testnet/account/GDSMQRA65ZTZBFP57USVK6QNFZNZTCAPCTEDUYUKXEMSOIZAGKI4ZUPM) |
@@ -155,6 +157,8 @@ Les deux contrats gardent leurs fiches en stockage persistant, TTL prolongé à 
 | Échange 1 · `release`, vendeur payé | [`d94698…820604`](https://stellar.expert/explorer/testnet/tx/d94698d3a9ad61da578589b1ef799f14f01111718b43f533374baff235820604) |
 | Échange 2 · `open`, 50 USDC bloqués pour une carte hors du coffre | [`446b8e…dddbf2`](https://stellar.expert/explorer/testnet/tx/446b8e79f15ba21f794a0996a7c6e479cc90fa0205265389f21d4089addddbf2) |
 | Échange 2 · `release` refusé par le contrat (`CardNotInVault`) | la simulation échoue, rien n'est envoyé : lancer `demo/demo.sh` pour le voir |
+| Remboursement partiel · `open` 943 USDC pour le Lugia | [`8f28c8…fcf01e`](https://stellar.expert/explorer/testnet/tx/8f28c848bdd3b281a43f3ff8216f7ed8f5e11440ef102bee825f736ee0fcf01e) |
+| Remboursement partiel · `settle`, 50 USDC → acheteur, 893 USDC → vendeur | [`c59e2c…79a77e`](https://stellar.expert/explorer/testnet/tx/c59e2c1237f13747d7e6464e9308b22937d1214d209e2ac209991564af79a77e) |
 | Échange 2 · `refund`, acheteur remboursé | [`1443e7…7f7fa2`](https://stellar.expert/explorer/testnet/tx/1443e72e998656d3ae39ab81a296f9666ccd583bb903f6d3e68aa262407f7fa2) |
 | **Contrat coffre** | [`CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO`](https://stellar.expert/explorer/testnet/contract/CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO) |
 | Déploiement du coffre | [`5833d9…978d1`](https://stellar.expert/explorer/testnet/tx/5833d98dd4230adee7f78feb8b34dcf8d8a190cb453c7b0dbf224c1ab25978d1) |
@@ -173,7 +177,7 @@ Prérequis : Rust + la cible `wasm32v1-none`, [Stellar CLI](https://developers.s
 ### 1. Contrats
 
 ```sh
-cargo test                                   # 26 tests : 11 coffre + 15 escrow
+cargo test                                   # 29 tests : 11 coffre + 18 escrow
 stellar contract build                       # target/wasm32v1-none/release/{card_vault,card_escrow}.wasm
 
 MOI=$(stellar keys address moi)
@@ -189,7 +193,7 @@ stellar contract deploy \
   -- --custodian "$MOI" --token "$USDC" --vault "$(stellar contract alias show vault --network testnet)"
 ```
 
-Les deux commandes `deploy` enregistrent les alias `vault` et `escrow` dans la config de votre Stellar CLI ; tout ce qui suit les utilise. Les contrats que nous avons déployés (tableau ci-dessus) n'acceptent que notre clé de dépositaire : les appels en écriture (`register_card`, `release`…) se font donc sur votre propre déploiement. Pour lire les nôtres (`get_card`, `get_trade`) : `stellar contract alias add vault --id CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO --network testnet` et `stellar contract alias add escrow --id CBUFJVVLC2TY7MDKEQKDAFP7TXPKP6MEDW2XWESEKJFG5V6ZJUEVHNWG --network testnet`.
+Les deux commandes `deploy` enregistrent les alias `vault` et `escrow` dans la config de votre Stellar CLI ; tout ce qui suit les utilise. Les contrats que nous avons déployés (tableau ci-dessus) n'acceptent que notre clé de dépositaire : les appels en écriture (`register_card`, `release`…) se font donc sur votre propre déploiement. Pour lire les nôtres (`get_card`, `get_trade`) : `stellar contract alias add vault --id CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO --network testnet` et `stellar contract alias add escrow --id CC2NP5O5E5L4463WLWTEPXOR3KEBYY7FMQMZT56TYLBJUVCP3DJHLG2O --network testnet`.
 
 ### 2. Le cycle de l'escrow
 
@@ -213,6 +217,9 @@ stellar contract invoke --id escrow --source-account collectionneur --network te
 
 # le dépositaire vérifie la carte et paie le vendeur
 stellar contract invoke --id escrow --source-account moi --network testnet --send=yes -- release --trade_id 1
+
+# ou, carte conforme mais envoi en retard : 50 USDC rendus à l'acheteur, le reste au vendeur
+stellar contract invoke --id escrow --source-account moi --network testnet --send=yes -- settle --trade_id 1 --refund_amount 500000000
 
 # ou, si la carte échoue à l'inspection, rembourse l'acheteur
 stellar contract invoke --id escrow --source-account moi --network testnet --send=yes -- refund --caller "$MOI" --trade_id 1
@@ -300,7 +307,7 @@ Ensuite : une empreinte physique de la carte (scan haute résolution sous éclai
 
 ```
 contracts/escrow/src/lib.rs   # le contrat d'escrow, commenté
-contracts/escrow/src/test.rs  # 15 tests
+contracts/escrow/src/test.rs  # 18 tests
 demo/demo.sh                  # la démo en direct : coffre + escrow, de bout en bout sur le testnet
 contracts/vault/src/lib.rs    # le contrat coffre, commenté
 contracts/vault/src/test.rs   # 11 tests

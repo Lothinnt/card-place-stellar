@@ -232,6 +232,45 @@ fn seller_can_never_refund() {
 }
 
 #[test]
+fn settle_splits_between_buyer_and_seller() {
+    let s = setup();
+    let id = open(&s);
+    let penalty: i128 = 50_0000000; // 50 USDC back to the buyer: the card arrived late
+    s.escrow.settle(&id, &penalty);
+    assert_eq!(s.usdc.balance(&s.escrow.address), 0);
+    assert_eq!(s.usdc.balance(&s.buyer), BUYER_FUNDS - PRICE + penalty);
+    assert_eq!(s.usdc.balance(&s.seller), PRICE - penalty);
+    let t = s.escrow.get_trade(&id);
+    assert_eq!(t.status, Status::Settled);
+    assert_eq!(t.refunded, penalty);
+    // closed for good
+    assert_eq!(s.escrow.try_release(&id), Err(Ok(Error::InvalidStatus)));
+    assert_eq!(s.escrow.try_refund(&s.custodian, &id), Err(Ok(Error::InvalidStatus)));
+}
+
+#[test]
+fn settle_rejects_a_bad_split_and_a_card_not_in_vault() {
+    let s = setup();
+    let id = open(&s);
+    assert_eq!(s.escrow.try_settle(&id, &(PRICE + 1)), Err(Ok(Error::InvalidSplit)));
+    assert_eq!(s.escrow.try_settle(&id, &-1), Err(Ok(Error::InvalidSplit)));
+    assert_eq!(s.escrow.get_trade(&id).status, Status::Funded);
+
+    let s2 = setup_with_vault(CardStatus::Shipped);
+    let id2 = open(&s2);
+    assert_eq!(s2.escrow.try_settle(&id2, &1_0000000), Err(Ok(Error::CardNotInVault)));
+    assert_eq!(s2.usdc.balance(&s2.escrow.address), PRICE);
+}
+
+#[test]
+fn settle_requires_custodian_auth() {
+    let s = setup();
+    let id = open(&s);
+    s.escrow.settle(&id, &1_0000000);
+    assert_eq!(s.env.auths()[0].0, s.custodian);
+}
+
+#[test]
 fn unknown_trade_fails() {
     let s = setup();
     assert_eq!(s.escrow.try_get_trade(&42), Err(Ok(Error::TradeNotFound)));

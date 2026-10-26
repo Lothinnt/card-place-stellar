@@ -22,7 +22,7 @@ Card Place (A safer way to buy and sell trading cards) : escrow et registre on-c
 
 ```sh
 # contrat
-cargo test                       # 26 tests : 11 coffre + 15 escrow, avec des SAC de test
+cargo test                       # 29 tests : 11 coffre + 18 escrow, avec des SAC de test
 stellar contract build           # → target/wasm32v1-none/release/{card_vault,card_escrow}.wasm
 
 # agent
@@ -41,7 +41,7 @@ sh demo-web-page/seed-market.sh       # ordres de vente/achat sur le DEX pour re
 ## Invariants du contrat escrow
 
 - Un échange = une clé `Trade(id)` en stockage persistant ; `NextId` en instance.
-- Un échange quitte `Funded` une seule fois : `release` (vers le vendeur) ou `refund` (vers l'acheteur). Toute autre transition renvoie `InvalidStatus`.
+- Un échange quitte `Funded` une seule fois : `release` (vers le vendeur), `settle` (part à l'acheteur, reste au vendeur) ou `refund` (vers l'acheteur). Toute autre transition renvoie `InvalidStatus`.
 - `open` : auth de l'acheteur, qui couvre le transfert SAC vers le contrat. `release` : auth du dépositaire. `refund` : dépositaire à tout moment, acheteur après `deadline`, jamais le vendeur.
 - Le montant qui sort est exactement `amount`. L'actif de paiement est fixé au déploiement (SAC USDC).
 
