@@ -1,6 +1,6 @@
 {
  "game": "Pokémon",
- "note": "Real cards from the vault, prices are asking prices. Only Zekrom ex PSA 10 is live on-chain for now.",
+ "note": "Real cards from the vault (card images: TCGdex, TCGplayer), prices are asking prices. Only Zekrom ex PSA 10 is live on-chain for now.",
  "cards": [
   {
    "id": "zekrom",
@@ -8,10 +8,11 @@
    "set": "BLK FR 2025",
    "grade": "PSA 10",
    "price": 800,
-   "image": "../docs/psa-137798077-front.jpg",
+   "image": "img/cards/tcgdex-sv10.5b-166.jpg",
    "live": true,
    "listed": "2026-10-09",
-   "asset_code": "PSA137798077"
+   "asset_code": "PSA137798077",
+   "mode": "fixed"
   },
   {
    "id": "513",
@@ -19,8 +20,11 @@
    "set": "Stars Étincelantes",
    "grade": "PCA 10",
    "price": 800,
-   "image": "img/cards/stock-513.jpg",
-   "listed": "2026-08-30"
+   "image": "img/cards/tcgdex-swsh9-154.jpg",
+   "listed": "2026-08-30",
+   "mode": "auction",
+   "ends": "2d 9h",
+   "bids": 16
   },
   {
    "id": "419",
@@ -28,8 +32,11 @@
    "set": "Héros Transcendants",
    "grade": "PCA 10",
    "price": 700,
-   "image": "img/cards/stock-419.jpg",
-   "listed": "2026-08-03"
+   "image": "img/cards/tcgdex-me02.5-295.jpg",
+   "listed": "2026-08-03",
+   "mode": "auction",
+   "ends": "5d 3h",
+   "bids": 11
   },
   {
    "id": "387",
@@ -37,8 +44,9 @@
    "set": "Écarlate et Violet",
    "grade": "PCA 10",
    "price": 555,
-   "image": "img/cards/stock-387.jpg",
-   "listed": "2026-07-08"
+   "image": "img/cards/tcgdex-sv08-238.jpg",
+   "listed": "2026-07-08",
+   "mode": "fixed"
   },
   {
    "id": "198",
@@ -46,26 +54,11 @@
    "set": "Héros Transcendants",
    "grade": "PCA 10",
    "price": 530,
-   "image": "img/cards/stock-198.jpg",
-   "listed": "2026-05-13"
-  },
-  {
-   "id": "524",
-   "name": "Dracaufeu ex 199/165",
-   "set": "151",
-   "grade": "PCA 9,5",
-   "price": 500,
-   "image": "img/cards/stock-524.jpg",
-   "listed": "2026-09-15"
-  },
-  {
-   "id": "370",
-   "name": "Mega Dracolosse ex 290/217",
-   "set": "Héros Transcendants",
-   "grade": "PCA 9,5",
-   "price": 641,
-   "image": "img/cards/stock-370.jpg",
-   "listed": "2026-06-03"
+   "image": "img/cards/tcgdex-me02.5-281.jpg",
+   "listed": "2026-05-13",
+   "mode": "auction",
+   "ends": "3d 14h",
+   "bids": 9
   },
   {
    "id": "512",
@@ -73,8 +66,11 @@
    "set": "Évolutions à Paldea",
    "grade": "PCA 9,5",
    "price": 489,
-   "image": "img/cards/stock-512.jpg",
-   "listed": "2026-08-25"
+   "image": "img/cards/tcgdex-sv02-203.jpg",
+   "listed": "2026-08-25",
+   "mode": "auction",
+   "ends": "6d 1h",
+   "bids": 21
   },
   {
    "id": "338",
@@ -82,26 +78,10 @@
    "set": "Épée et Bouclier",
    "grade": "PCA 9,5",
    "price": 440,
-   "image": "img/cards/stock-338.jpg",
-   "listed": "2026-06-08"
-  },
-  {
-   "id": "324",
-   "name": "Dracaufeu 4/102",
-   "set": "Celebrations",
-   "grade": "PCA 9,5",
-   "price": 400,
-   "image": "img/cards/stock-324.jpg",
-   "listed": "2026-05-31"
-  },
-  {
-   "id": "530",
-   "name": "Dracaufeu V 154/172",
-   "set": "Stars Étincelantes",
-   "grade": "PCA 9",
-   "price": 399,
-   "image": "img/cards/stock-530.jpg",
-   "listed": "2026-08-29"
+   "image": "img/cards/tcgp-250332.jpg",
+   "listed": "2026-06-08",
+   "mode": "fixed",
+   "deal": true
   },
   {
    "id": "294",
@@ -109,8 +89,44 @@
    "set": "Méga-Évolution",
    "grade": "PCA 10",
    "price": 280,
-   "image": "img/cards/stock-294.jpg",
-   "listed": "2026-05-30"
+   "image": "img/cards/tcgdex-me01-181.jpg",
+   "listed": "2026-05-30",
+   "mode": "auction",
+   "ends": "1d 6h",
+   "bids": 7
+  },
+  {
+   "id": "264",
+   "name": "Carchacrok-ex de Cynthia 232/182",
+   "set": "Rivalités Destinées",
+   "grade": "PCA 9,5",
+   "price": 278,
+   "image": "img/cards/tcgdex-sv10-232.jpg",
+   "listed": "2026-05-25",
+   "mode": "fixed"
+  },
+  {
+   "id": "277",
+   "name": "Milobellus ex 237/191",
+   "set": "Étincelles Déferlantes",
+   "grade": "PCA 9,5",
+   "price": 264,
+   "image": "img/cards/tcgdex-sv08-237.jpg",
+   "listed": "2026-05-17",
+   "mode": "auction",
+   "ends": "4d 20h",
+   "bids": 13
+  },
+  {
+   "id": "529",
+   "name": "Évoli ex 167/131",
+   "set": "Évolutions Prismatiques",
+   "grade": "PCA 9,5",
+   "price": 239,
+   "image": "img/cards/tcgdex-sv08.5-167.jpg",
+   "listed": "2026-08-28",
+   "mode": "fixed",
+   "deal": true
   },
   {
    "id": "276",
@@ -118,17 +134,9 @@
    "set": "Héros Transcendants",
    "grade": "PCA 10",
    "price": 180,
-   "image": "img/cards/stock-276.jpg",
-   "listed": "2026-05-16"
-  },
-  {
-   "id": "309",
-   "name": "Mega Aligatueur EX alt 274/217",
-   "set": "Héros Transcendants",
-   "grade": "PCA 10",
-   "price": 180,
-   "image": "img/cards/stock-309.jpg",
-   "listed": "2026-05-30"
+   "image": "img/cards/tcgdex-me02.5-274.jpg",
+   "listed": "2026-05-16",
+   "mode": "fixed"
   },
   {
    "id": "265",
@@ -136,8 +144,21 @@
    "set": "Héros Transcendants",
    "grade": "PCA 10",
    "price": 158,
-   "image": "img/cards/stock-265.jpg",
-   "listed": "2026-05-26"
+   "image": "img/cards/tcgdex-me02.5-275.jpg",
+   "listed": "2026-05-26",
+   "mode": "fixed"
+  },
+  {
+   "id": "562",
+   "name": "Méga-Ectoplasma ex 269/217",
+   "set": "Héros Transcendants",
+   "grade": "PCA 10",
+   "price": 130,
+   "image": "img/cards/tcgdex-me02.5-269.jpg",
+   "listed": "2026-10-25",
+   "mode": "auction",
+   "ends": "6d 11h",
+   "bids": 4
   },
   {
    "id": "244",
@@ -145,8 +166,20 @@
    "set": "Méga-Évolution",
    "grade": "PCA 10",
    "price": 123,
-   "image": "img/cards/stock-244.jpg",
-   "listed": "2026-05-22"
+   "image": "img/cards/tcgdex-me01-182.jpg",
+   "listed": "2026-05-22",
+   "mode": "fixed",
+   "deal": true
+  },
+  {
+   "id": "554",
+   "name": "Méga-Absol ex 180/132",
+   "set": "Méga-Évolution",
+   "grade": "PCA 10",
+   "price": 120,
+   "image": "img/cards/tcgdex-me01-180.jpg",
+   "listed": "2026-10-24",
+   "mode": "fixed"
   },
   {
    "id": "305",
@@ -154,8 +187,9 @@
    "set": "Écarlate et Violet",
    "grade": "PCA 10",
    "price": 100,
-   "image": "img/cards/stock-305.jpg",
-   "listed": "2026-06-03"
+   "image": "img/cards/tcgdex-sv10-235.jpg",
+   "listed": "2026-06-03",
+   "mode": "fixed"
   },
   {
    "id": "220",
@@ -163,8 +197,11 @@
    "set": "Héros Transcendants",
    "grade": "PCA 10",
    "price": 77,
-   "image": "img/cards/stock-220.jpg",
-   "listed": "2026-05-18"
+   "image": "img/cards/tcgdex-me02.5-278.jpg",
+   "listed": "2026-05-18",
+   "mode": "auction",
+   "ends": "2d 2h",
+   "bids": 19
   }
  ]
 }

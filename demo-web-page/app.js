@@ -21,7 +21,7 @@ init();
 
 async function init() {
   DATA = await (await fetch("data/zekrom.json")).json();
-  renderMarket(marketRows("all"));
+  selectTab($('#market-tabs button[data-cat="cap"]'));
   renderPopulation(DATA.population);
   $("#details").innerHTML = DATA.details.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
   bindControls();
@@ -29,32 +29,6 @@ async function init() {
   renderSales();
   loadVault();      // on-chain, best effort
   loadOrderBook();  // Horizon, best effort
-}
-
-/* ---------- Market ---------- */
-function marketRows(cat) {
-  const all = [...DATA.market];
-  if (cat === "trending") return all.sort((a, b) => b.change - a.change);
-  if (cat === "all") return all;
-  return all.filter((r) => r.game === cat);
-}
-
-function renderMarket(rows) {
-  const tbody = $("#market-table tbody");
-  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="6" class="muted" style="text-align:center">No cards in this category yet</td></tr>`; return; }
-  tbody.innerHTML = rows.map((r) => `
-    <tr onclick="openCard()">
-      <td><div class="row-name">
-        <img class="row-thumb" src="${r.live ? DATA.image : ""}" alt="" onerror="this.removeAttribute('src')">
-        <div><div class="row-title">${r.name} <span class="grade-chip">${r.grade}</span>${r.live ? '<span class="live-dot" title="On-chain"></span>' : ""}</div>
-        <div class="row-sub">${r.game} · ${r.set}</div></div>
-      </div></td>
-      <td class="num">€${fmt(r.price)}</td>
-      <td class="num ${r.change >= 0 ? "up" : "down"}">${r.change >= 0 ? "+" : ""}${r.change.toFixed(1)}%</td>
-      <td class="num">€${fmt(r.volume)}</td>
-      <td class="num">${r.sales}</td>
-      <td class="num"><span class="textlink">Trade</span></td>
-    </tr>`).join("");
 }
 
 /* ---------- Rarity ---------- */
@@ -92,22 +66,16 @@ function bindControls() {
 }
 
 // The Zekrom page lives under the Example tab (it is the only card with a page).
+// Pokémon and One Piece have no data yet: they only show a message.
+const GAMES = ["Pokémon", "One Piece"];
 function selectTab(b) {
     $("#market-tabs .active")?.classList.remove("active"); b.classList.add("active");
-    const example = b.dataset.cat === "example";
+    const cat = b.dataset.cat, example = cat === "example", game = GAMES.includes(cat);
     $("#card").hidden = !example;
-    // Pokémon and One Piece have an explore page (shelves of slabs); the other tabs keep the market section
-    const explore = b.dataset.cat in EXPLORE;
-    $("#explore").hidden = !explore; $("#market").hidden = explore || example;
-    if (b.dataset.cat === "cap") return showMarketCap();
-    $("#cap-grid").hidden = true; $("#cap-filter").hidden = true; $("#overview").hidden = true; $("#cap-bar").hidden = true;
-    if (explore) { openExplore(b.dataset.cat); return; }
-    if (example) { document.body.classList.remove("wide"); return; }
-    $("#market-table-wrap").hidden = false;
+    $("#explore").hidden = !game; $("#market").hidden = cat !== "cap";
+    if (cat === "cap") return showMarketCap();
     document.body.classList.remove("wide");
-    $("#market-title").textContent = "Top cards";
-    $("#market-sub").textContent = "Public price, 24h change, volume and sales. Every sale is a Stellar transaction, visible to anyone.";
-    renderMarket(marketRows(b.dataset.cat));
+    if (game) $("#explore-title").textContent = `${cat} data is not available yet`;
 }
 
 function openCard() {
@@ -317,7 +285,6 @@ async function showMarketCap() {
   CAP = CAP || await (await fetch("data/market-cap.json")).json();
   OV = OV || await (await fetch("data/market-overview.json")).json();
   $("#market-title").textContent = "Market cap";
-  $("#market-table-wrap").hidden = true;
   $("#cap-bar").hidden = false;
   renderOverview();
   renderMarketCap();
@@ -408,69 +375,3 @@ $("#cap-filter").addEventListener("click", (e) => {
 });
 bindSort($("#ov-table"), "ov", renderOverview);
 bindSort($("#cap-table"), "cap", renderMarketCap);
-
-
-/* ---------- Explore a game: shelves of slabs (data/pokemon.json, data/one-piece.json) ---------- */
-// each game has its own chips (filters) and shelves (sorted rails, ranked or not)
-const EXPLORE = {
-  "Pokémon": {
-    file: "data/pokemon.json", logo: "img/games/pokemon-tcg.png", count: (n) => `${n} cards in the vault`,
-    chips: [["featured", "Featured"], ["all", "All"], ["grade10", "Grade 10", (c) => /\b10$/.test(c.grade)], ["under600", "Under €600", (c) => c.price < 600], ["live", "Live on-chain", (c) => c.live]],
-    shelves: [
-      ["Top cards", (l) => [...l].sort((a, b) => b.price - a.price), true],
-      ["Recently added", (l) => [...l].sort((a, b) => b.listed.localeCompare(a.listed))],
-      ["Live on-chain", (l) => l.filter((c) => c.live)],
-    ],
-  },
-  "One Piece": {
-    file: "data/one-piece.json", logo: "img/games/one-piece-tcg.png", count: (n) => `${n} items`, slab: true,
-    chips: [["featured", "Featured"], ["all", "All"], ["auction", "Auctions", (c) => c.mode === "auction"], ["fixed", "Fixed price", (c) => c.mode === "fixed"], ["deals", "Great deals", (c) => c.deal]],
-    shelves: [
-      ["Highest bids", (l) => l.filter((c) => c.mode === "auction").sort((a, b) => b.price - a.price), true],
-      ["Most bids", (l) => l.filter((c) => c.mode === "auction").sort((a, b) => b.bids - a.bids), true],
-      ["Most followed", (l) => [...l].sort((a, b) => b.followers - a.followers), true],
-      ["Recently added", (l) => [...l].sort((a, b) => b.listed.localeCompare(a.listed))],
-    ],
-  },
-};
-const EXDATA = {};
-let EXGAME = "Pokémon", EXF = "featured";
-
-function openExplore(game) {
-  if (game !== EXGAME) { EXGAME = game; EXF = "featured"; $("#explore-q").value = ""; }
-  const g = EXPLORE[game];
-  $("#explore-title").textContent = game;
-  $("#explore-q").placeholder = `Search in ${game}`;
-  $("#explore-logo").src = g.logo; $("#explore-logo").alt = game;
-  $("#explore-back").dataset.game = game;
-  $("#explore-chips").innerHTML = g.chips.map(([k, label], i) => `${i === 1 ? '<span class="chip-sep"></span>' : ""}<button data-f="${k}" class="${k === EXF ? "active" : ""}">${label}</button>`).join("");
-  renderExplore();
-}
-
-// a slab drawn in CSS: grader label on top, the card (or its sleeve colour) underneath
-const slab = (c) => `<div class="slab"><div class="slab-label"><span>${c.set}</span><b>${c.name}</b><em>${c.grade}</em></div>
-  <div class="slab-card">${c.image ? `<img src="${c.image}" alt="${c.name} ${c.grade}" loading="lazy">` : `<div class="slab-art"><span>${c.name}</span></div>`}</div></div>`;
-
-async function renderExplore() {
-  const g = EXPLORE[EXGAME];
-  const data = EXDATA[EXGAME] = EXDATA[EXGAME] || await (await fetch(g.file)).json();
-  $("#explore-count").textContent = g.count(data.cards.length);
-  $("#explore-note").textContent = " — " + data.note;
-  const q = ($("#explore-q").value || "").trim().toLowerCase();
-  const chip = g.chips.find(([k]) => k === EXF);
-  const cards = data.cards.filter((c) => (!q || (c.name + " " + c.set + " " + c.grade).toLowerCase().includes(q)) && (!chip?.[2] || chip[2](c)));
-  const price = (c) => c.mode === "auction" ? `<b>€${fmt(c.price)}</b> · ${c.ends}` : c.mode === "fixed" ? `<b>€${fmt(c.price)}</b> · Fixed price` : `<b>€${fmt(c.price)}</b> · ${c.live ? "order book" : "asking price"}`;
-  const tile = (c, i) => `<div class="tile${g.slab ? " tile-slab" : ""}" onclick="openCard()">
-      <div class="pic">${g.slab ? slab(c) : `<img src="${c.image}" alt="${c.name} ${c.grade}" loading="lazy">`}${c.live ? '<span class="live-tag"><span class="live-dot"></span>On-chain</span>' : ""}${c.deal ? '<span class="live-tag deal-tag">Great deal</span>' : ""}</div>
-      <div class="nm">${i != null ? `<span class="rank">${i + 1}</span>` : ""}<span class="nm-txt">${g.slab ? `${c.grade} ${c.name}` : c.name}</span>${g.slab ? "" : `<span class="grade-chip">${c.grade}</span>`}</div>
-      <div class="pr">${price(c)}</div></div>`;
-  $("#shelves").innerHTML = g.shelves.map(([title, pick, ranked]) => {
-    const list = pick(cards).slice(0, 10);
-    return `<div class="shelf"><h2>${title} <span class="chev">›</span></h2><div class="rail">${list.length ? list.map((c, i) => tile(c, ranked ? i : null)).join("") : `<div class="empty">No card matches</div>`}</div></div>`;
-  }).join("");
-}
-$("#explore-q").addEventListener("input", renderExplore);
-$("#explore-chips").addEventListener("click", (e) => {
-  const b = e.target.closest("button"); if (!b) return;
-  $("#explore-chips .active")?.classList.remove("active"); b.classList.add("active"); EXF = b.dataset.f; renderExplore();
-});

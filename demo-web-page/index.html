@@ -14,9 +14,7 @@
   <div class="nav-inner">
     <a class="brand" href="#">Card Place</a>
     <div class="nav-links tabs" id="market-tabs">
-      <button data-cat="cap">Market cap</button>
-      <button data-cat="all" class="active">All</button>
-      <button data-cat="trending">Trending</button>
+      <button data-cat="cap" class="active">Market cap</button>
       <button data-cat="Pokémon">Pokémon</button>
       <button data-cat="One Piece">One Piece</button>
       <button data-cat="example">Example</button>
@@ -52,40 +50,15 @@
         <th class="num sort" data-sort="entry">Entry cost</th><th class="num sort" data-sort="momentum">Momentum</th><th class="num sort" data-sort="dominance">Dominance</th><th class="num sort" data-sort="pop">Population</th><th class="num">Graph</th></tr></thead>
       <tbody></tbody></table><p class="footnote" id="cap-note"></p></div>
 
-    <div class="table-wrap" id="market-table-wrap">
-      <table class="table" id="market-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th class="num">Price</th>
-            <th class="num">24h</th>
-            <th class="num">30d volume</th>
-            <th class="num">30d sales</th>
-            <th class="num"></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
   </section>
 
   <!-- ====== Card ====== -->
-  <!-- ====== Explore a game (Pokémon, One Piece) ====== -->
+  <!-- ====== Pokémon, One Piece: no data yet ====== -->
   <section id="explore" class="section" hidden>
-    <div class="explore-hero">
-      <div class="explore-main">
-        <h1 id="explore-title">Pokémon</h1>
-        <p class="muted" id="explore-count"></p>
-        <div class="explore-search">
-          <label class="search-box"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="explore-q" type="search" placeholder="Search in Pokémon" autocomplete="off"></label>
-          <button class="icon-btn" title="Filters" aria-label="Filters"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M7 12h10M10 17h4"/></svg></button>
-        </div>
-        <div class="chips" id="explore-chips"></div>
-      </div>
-      <div class="game-back" id="explore-back" aria-hidden="true"><img id="explore-logo" src="" alt=""></div>
+    <div class="empty-state">
+      <h1 id="explore-title">Pokémon data is not available yet</h1>
+      <p class="muted">Rankings, listings and sales history will appear here as cards enter the vault.</p>
     </div>
-    <p class="notice"><i></i><b>Data in progress</b><span id="explore-note"></span></p>
-    <div id="shelves"></div>
   </section>
 
   <section id="card" class="section card-section" hidden>
