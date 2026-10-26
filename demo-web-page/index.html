@@ -17,10 +17,9 @@
       <button data-cat="cap">Market cap</button>
       <button data-cat="all" class="active">All</button>
       <button data-cat="trending">Trending</button>
-      <button data-cat="new">New</button>
       <button data-cat="Pokémon">Pokémon</button>
       <button data-cat="One Piece">One Piece</button>
-      <button data-cat="Magic The Gathering">Magic The Gathering</button>
+      <button data-cat="example">Example</button>
     </div>
     <div class="nav-right">
       <button class="btn btn-ghost">Sign in</button>
@@ -71,22 +70,22 @@
   </section>
 
   <!-- ====== Card ====== -->
-  <!-- ====== Explore a game (Pokémon) ====== -->
+  <!-- ====== Explore a game (Pokémon, One Piece) ====== -->
   <section id="explore" class="section" hidden>
-    <div class="explore-head">
-      <div>
+    <div class="explore-hero">
+      <div class="explore-main">
         <h1 id="explore-title">Pokémon</h1>
         <p class="muted" id="explore-count"></p>
+        <div class="explore-search">
+          <label class="search-box"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="explore-q" type="search" placeholder="Search in Pokémon" autocomplete="off"></label>
+          <button class="icon-btn" title="Filters" aria-label="Filters"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M7 12h10M10 17h4"/></svg></button>
+        </div>
+        <div class="chips" id="explore-chips"></div>
       </div>
-      <div class="explore-search"><input id="explore-q" type="search" placeholder="Search in Pokémon" autocomplete="off"></div>
-    </div>
-    <div class="chips" id="explore-chips">
-      <button data-f="featured" class="active">Featured</button><button data-f="all">All</button><button data-f="grade10">Grade 10</button><button data-f="under600">Under €600</button><button data-f="live">Live on-chain</button>
+      <div class="game-back" id="explore-back" aria-hidden="true"><img id="explore-logo" src="" alt=""></div>
     </div>
     <p class="notice"><i></i><b>Data in progress</b><span id="explore-note"></span></p>
-    <div class="shelf"><h2>Top cards <span class="chev">›</span></h2><div class="rail" id="shelf-top"></div></div>
-    <div class="shelf"><h2>Recently added <span class="chev">›</span></h2><div class="rail" id="shelf-new"></div></div>
-    <div class="shelf"><h2>Live on-chain <span class="chev">›</span></h2><div class="rail" id="shelf-live"></div></div>
+    <div id="shelves"></div>
   </section>
 
   <section id="card" class="section card-section" hidden>

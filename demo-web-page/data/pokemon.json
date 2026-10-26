@@ -57,6 +57,114 @@
    "price": 500,
    "image": "img/cards/stock-524.jpg",
    "listed": "2026-09-15"
+  },
+  {
+   "id": "370",
+   "name": "Mega Dracolosse ex 290/217",
+   "set": "Héros Transcendants",
+   "grade": "PCA 9,5",
+   "price": 641,
+   "image": "img/cards/stock-370.jpg",
+   "listed": "2026-06-03"
+  },
+  {
+   "id": "512",
+   "name": "Magicarpe 203/193",
+   "set": "Évolutions à Paldea",
+   "grade": "PCA 9,5",
+   "price": 489,
+   "image": "img/cards/stock-512.jpg",
+   "listed": "2026-08-25"
+  },
+  {
+   "id": "338",
+   "name": "Noctali 17/17",
+   "set": "Épée et Bouclier",
+   "grade": "PCA 9,5",
+   "price": 440,
+   "image": "img/cards/stock-338.jpg",
+   "listed": "2026-06-08"
+  },
+  {
+   "id": "324",
+   "name": "Dracaufeu 4/102",
+   "set": "Celebrations",
+   "grade": "PCA 9,5",
+   "price": 400,
+   "image": "img/cards/stock-324.jpg",
+   "listed": "2026-05-31"
+  },
+  {
+   "id": "530",
+   "name": "Dracaufeu V 154/172",
+   "set": "Stars Étincelantes",
+   "grade": "PCA 9",
+   "price": 399,
+   "image": "img/cards/stock-530.jpg",
+   "listed": "2026-08-29"
+  },
+  {
+   "id": "294",
+   "name": "Mega Latias 181/132",
+   "set": "Méga-Évolution",
+   "grade": "PCA 10",
+   "price": 280,
+   "image": "img/cards/stock-294.jpg",
+   "listed": "2026-05-30"
+  },
+  {
+   "id": "276",
+   "name": "Méga-Aligatueur ex 274/217",
+   "set": "Héros Transcendants",
+   "grade": "PCA 10",
+   "price": 180,
+   "image": "img/cards/stock-276.jpg",
+   "listed": "2026-05-16"
+  },
+  {
+   "id": "309",
+   "name": "Mega Aligatueur EX alt 274/217",
+   "set": "Héros Transcendants",
+   "grade": "PCA 10",
+   "price": 180,
+   "image": "img/cards/stock-309.jpg",
+   "listed": "2026-05-30"
+  },
+  {
+   "id": "265",
+   "name": "Mega Momartik 275/217",
+   "set": "Héros Transcendants",
+   "grade": "PCA 10",
+   "price": 158,
+   "image": "img/cards/stock-265.jpg",
+   "listed": "2026-05-26"
+  },
+  {
+   "id": "244",
+   "name": "Mega Kangourex ex 182/132",
+   "set": "Méga-Évolution",
+   "grade": "PCA 10",
+   "price": 123,
+   "image": "img/cards/stock-244.jpg",
+   "listed": "2026-05-22"
+  },
+  {
+   "id": "305",
+   "name": "Dogrino ex de Pepper 235/182",
+   "set": "Écarlate et Violet",
+   "grade": "PCA 10",
+   "price": 100,
+   "image": "img/cards/stock-305.jpg",
+   "listed": "2026-06-03"
+  },
+  {
+   "id": "220",
+   "name": "Méga-Ohmassacre 278/217",
+   "set": "Héros Transcendants",
+   "grade": "PCA 10",
+   "price": 77,
+   "image": "img/cards/stock-220.jpg",
+   "listed": "2026-05-18"
   }
  ]
 }

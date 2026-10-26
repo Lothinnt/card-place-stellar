@@ -1,0 +1,20 @@
+{
+ "game": "One Piece",
+ "note": "Sample listings for the demo (card images: TCGplayer), no One Piece card is live on-chain yet.",
+ "cards": [
+  { "id": "op-zoro-manga", "name": "Roronoa Zoro Manga", "set": "OP06-118 · Wings of the Captain", "grade": "PSA 10", "price": 1350, "mode": "auction", "ends": "3d 12h", "bids": 14, "followers": 212, "listed": "2026-10-19", "image": "img/cards/tcgp-541660.jpg" },
+  { "id": "op-luffy-119-alt", "name": "Monkey.D.Luffy Alt Art", "set": "OP05-119 · Premium Booster The Best", "grade": "PSA 10", "price": 420, "mode": "auction", "ends": "6d 11h", "bids": 9, "followers": 88, "listed": "2026-10-20", "image": "img/cards/tcgp-586960.jpg" },
+  { "id": "op-sanji-manga-ccc", "name": "Sanji Manga", "set": "OP06-119 · Premium Booster The Best Vol. 2", "grade": "CCC 10", "price": 380, "mode": "auction", "ends": "6d 10h", "bids": 27, "followers": 64, "listed": "2026-10-20", "image": "img/cards/tcgp-654637.jpg" },
+  { "id": "op-smoker-001", "name": "Smoker Parallel", "set": "OP07-001 · 500 Years in the Future", "grade": "PSA 10", "price": 290, "mode": "fixed", "followers": 41, "listed": "2026-10-24", "image": "img/cards/tcgp-617031.jpg" },
+  { "id": "op-luffy-p043", "name": "Monkey.D.Luffy Convention Promo", "set": "P-043 · Promotion Cards 2024", "grade": "PSA 10", "price": 200, "mode": "auction", "ends": "6d 11h", "bids": 6, "followers": 175, "listed": "2026-10-20", "image": "img/cards/tcgp-552131.jpg" },
+  { "id": "op-luffy-p006", "name": "Monkey.D.Luffy Retail Promo", "set": "P-006 · Promotion Cards", "grade": "PSA 10", "price": 180, "mode": "auction", "ends": "1d 10h", "bids": 12, "followers": 59, "listed": "2026-10-21", "image": "img/cards/tcgp-518865.jpg" },
+  { "id": "op-luffy-gold", "name": "Monkey.D.Luffy SP Gold", "set": "OP05-119 · A Fist of Divine Speed", "grade": "PSA 10", "price": 25000, "mode": "fixed", "followers": 160, "listed": "2026-09-02", "image": "img/cards/tcgp-632504.jpg" },
+  { "id": "op-sanji-manga-psa", "name": "Sanji Manga", "set": "OP06-119 · Premium Booster The Best Vol. 2", "grade": "PSA 10", "price": 1999, "mode": "fixed", "followers": 98, "listed": "2026-09-28", "image": "img/cards/tcgp-654637.jpg" },
+  { "id": "op-robin", "name": "Nico Robin Alt Art", "set": "OP12-087 · Legacy of the Master", "grade": "PSA 10", "price": 90, "mode": "auction", "ends": "6d 10h", "bids": 18, "followers": 22, "listed": "2026-10-20", "image": "img/cards/tcgp-643831.jpg" },
+  { "id": "op-sugar-003", "name": "Sugar Parallel", "set": "OP07-003 · 500 Years in the Future", "grade": "PSA 9", "price": 85, "mode": "fixed", "deal": true, "followers": 12, "listed": "2026-10-25", "image": "img/cards/tcgp-617035.jpg" },
+  { "id": "op-hancock", "name": "Boa Hancock Alt Art", "set": "OP14-112 · The Azure Sea's Seven", "grade": "PSA 10", "price": 97, "mode": "fixed", "deal": true, "followers": 30, "listed": "2026-10-25", "image": "img/cards/tcgp-668343.jpg" },
+  { "id": "op-sabo", "name": "Sabo Alt Art", "set": "OP04-083 · Kingdoms of Intrigue", "grade": "PCA 9,5", "price": 150, "mode": "fixed", "deal": true, "followers": 17, "listed": "2026-10-24", "image": "img/cards/tcgp-514544.jpg" },
+  { "id": "op-enel", "name": "Enel SP", "set": "EB02-052 · Adventure on Kami's Island", "grade": "BGS 10", "price": 55, "mode": "auction", "ends": "6d 10h", "bids": 8, "followers": 9, "listed": "2026-10-20", "image": "img/cards/tcgp-685008.jpg" },
+  { "id": "op-roger", "name": "Gol.D.Roger Alt Art", "set": "OP09-118 · Emperors in the New World", "grade": "CCC 10", "price": 10, "mode": "auction", "ends": "6d 10h", "bids": 1, "followers": 5, "listed": "2026-10-26", "image": "img/cards/tcgp-597066.jpg" }
+ ]
+}

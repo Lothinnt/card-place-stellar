@@ -35,7 +35,6 @@ async function init() {
 function marketRows(cat) {
   const all = [...DATA.market];
   if (cat === "trending") return all.sort((a, b) => b.change - a.change);
-  if (cat === "new") return all.sort((a, b) => b.listed.localeCompare(a.listed));
   if (cat === "all") return all;
   return all.filter((r) => r.game === cat);
 }
@@ -92,16 +91,18 @@ function bindControls() {
   });
 }
 
-// The Zekrom page lives under the Pokémon tab for now (it is the only card with a page).
+// The Zekrom page lives under the Example tab (it is the only card with a page).
 function selectTab(b) {
     $("#market-tabs .active")?.classList.remove("active"); b.classList.add("active");
-    $("#card").hidden = b.dataset.cat !== "Pokémon";
-    // Pokémon has its own explore page (shelves of real slabs); the other tabs keep the market section
-    const explore = b.dataset.cat === "Pokémon";
-    $("#explore").hidden = !explore; $("#market").hidden = explore;
+    const example = b.dataset.cat === "example";
+    $("#card").hidden = !example;
+    // Pokémon and One Piece have an explore page (shelves of slabs); the other tabs keep the market section
+    const explore = b.dataset.cat in EXPLORE;
+    $("#explore").hidden = !explore; $("#market").hidden = explore || example;
     if (b.dataset.cat === "cap") return showMarketCap();
     $("#cap-grid").hidden = true; $("#cap-filter").hidden = true; $("#overview").hidden = true; $("#cap-bar").hidden = true;
-    if (explore) { renderExplore(); return; }
+    if (explore) { openExplore(b.dataset.cat); return; }
+    if (example) { document.body.classList.remove("wide"); return; }
     $("#market-table-wrap").hidden = false;
     document.body.classList.remove("wide");
     $("#market-title").textContent = "Top cards";
@@ -110,7 +111,7 @@ function selectTab(b) {
 }
 
 function openCard() {
-  selectTab($('#market-tabs button[data-cat="Pokémon"]'));
+  selectTab($('#market-tabs button[data-cat="example"]'));
   $("#card").scrollIntoView({ behavior: "smooth" });
 }
 
@@ -409,25 +410,64 @@ bindSort($("#ov-table"), "ov", renderOverview);
 bindSort($("#cap-table"), "cap", renderMarketCap);
 
 
-/* ---------- Explore a game: shelves of real slabs (data/pokemon.json) ---------- */
-let POKE, EXF = "featured";
+/* ---------- Explore a game: shelves of slabs (data/pokemon.json, data/one-piece.json) ---------- */
+// each game has its own chips (filters) and shelves (sorted rails, ranked or not)
+const EXPLORE = {
+  "Pokémon": {
+    file: "data/pokemon.json", logo: "img/games/pokemon-tcg.png", count: (n) => `${n} cards in the vault`,
+    chips: [["featured", "Featured"], ["all", "All"], ["grade10", "Grade 10", (c) => /\b10$/.test(c.grade)], ["under600", "Under €600", (c) => c.price < 600], ["live", "Live on-chain", (c) => c.live]],
+    shelves: [
+      ["Top cards", (l) => [...l].sort((a, b) => b.price - a.price), true],
+      ["Recently added", (l) => [...l].sort((a, b) => b.listed.localeCompare(a.listed))],
+      ["Live on-chain", (l) => l.filter((c) => c.live)],
+    ],
+  },
+  "One Piece": {
+    file: "data/one-piece.json", logo: "img/games/one-piece-tcg.png", count: (n) => `${n} items`, slab: true,
+    chips: [["featured", "Featured"], ["all", "All"], ["auction", "Auctions", (c) => c.mode === "auction"], ["fixed", "Fixed price", (c) => c.mode === "fixed"], ["deals", "Great deals", (c) => c.deal]],
+    shelves: [
+      ["Highest bids", (l) => l.filter((c) => c.mode === "auction").sort((a, b) => b.price - a.price), true],
+      ["Most bids", (l) => l.filter((c) => c.mode === "auction").sort((a, b) => b.bids - a.bids), true],
+      ["Most followed", (l) => [...l].sort((a, b) => b.followers - a.followers), true],
+      ["Recently added", (l) => [...l].sort((a, b) => b.listed.localeCompare(a.listed))],
+    ],
+  },
+};
+const EXDATA = {};
+let EXGAME = "Pokémon", EXF = "featured";
+
+function openExplore(game) {
+  if (game !== EXGAME) { EXGAME = game; EXF = "featured"; $("#explore-q").value = ""; }
+  const g = EXPLORE[game];
+  $("#explore-title").textContent = game;
+  $("#explore-q").placeholder = `Search in ${game}`;
+  $("#explore-logo").src = g.logo; $("#explore-logo").alt = game;
+  $("#explore-back").dataset.game = game;
+  $("#explore-chips").innerHTML = g.chips.map(([k, label], i) => `${i === 1 ? '<span class="chip-sep"></span>' : ""}<button data-f="${k}" class="${k === EXF ? "active" : ""}">${label}</button>`).join("");
+  renderExplore();
+}
+
+// a slab drawn in CSS: grader label on top, the card (or its sleeve colour) underneath
+const slab = (c) => `<div class="slab"><div class="slab-label"><span>${c.set}</span><b>${c.name}</b><em>${c.grade}</em></div>
+  <div class="slab-card">${c.image ? `<img src="${c.image}" alt="${c.name} ${c.grade}" loading="lazy">` : `<div class="slab-art"><span>${c.name}</span></div>`}</div></div>`;
+
 async function renderExplore() {
-  POKE = POKE || await (await fetch("data/pokemon.json")).json();
-  $("#explore-count").textContent = `${POKE.cards.length} cards in the vault`;
-  $("#explore-note").textContent = " — " + POKE.note;
+  const g = EXPLORE[EXGAME];
+  const data = EXDATA[EXGAME] = EXDATA[EXGAME] || await (await fetch(g.file)).json();
+  $("#explore-count").textContent = g.count(data.cards.length);
+  $("#explore-note").textContent = " — " + data.note;
   const q = ($("#explore-q").value || "").trim().toLowerCase();
-  let cards = POKE.cards.filter((c) => !q || (c.name + " " + c.set + " " + c.grade).toLowerCase().includes(q));
-  if (EXF === "grade10") cards = cards.filter((c) => /\b10$/.test(c.grade));
-  if (EXF === "under600") cards = cards.filter((c) => c.price < 600);
-  if (EXF === "live") cards = cards.filter((c) => c.live);
-  const tile = (c, i) => `<div class="tile" onclick="openCard()">
-      <div class="pic"><img src="${c.image}" alt="${c.name} ${c.grade}" loading="lazy">${i != null ? `<span class="rank">${i + 1}</span>` : ""}${c.live ? '<span class="live-tag"><span class="live-dot"></span>On-chain</span>' : ""}</div>
-      <div class="nm">${c.name}<span class="grade-chip">${c.grade}</span></div>
-      <div class="pr"><b>€${fmt(c.price)}</b> · ${c.live ? "order book" : "asking price"}</div></div>`;
-  const fill = (id, list, ranked) => { $(id).innerHTML = list.length ? list.map((c, i) => tile(c, ranked ? i : null)).join("") : `<div class="empty">No card matches</div>`; };
-  fill("#shelf-top", [...cards].sort((a, b) => b.price - a.price), true);
-  fill("#shelf-new", [...cards].sort((a, b) => b.listed.localeCompare(a.listed)), false);
-  fill("#shelf-live", cards.filter((c) => c.live), false);
+  const chip = g.chips.find(([k]) => k === EXF);
+  const cards = data.cards.filter((c) => (!q || (c.name + " " + c.set + " " + c.grade).toLowerCase().includes(q)) && (!chip?.[2] || chip[2](c)));
+  const price = (c) => c.mode === "auction" ? `<b>€${fmt(c.price)}</b> · ${c.ends}` : c.mode === "fixed" ? `<b>€${fmt(c.price)}</b> · Fixed price` : `<b>€${fmt(c.price)}</b> · ${c.live ? "order book" : "asking price"}`;
+  const tile = (c, i) => `<div class="tile${g.slab ? " tile-slab" : ""}" onclick="openCard()">
+      <div class="pic">${g.slab ? slab(c) : `<img src="${c.image}" alt="${c.name} ${c.grade}" loading="lazy">`}${c.live ? '<span class="live-tag"><span class="live-dot"></span>On-chain</span>' : ""}${c.deal ? '<span class="live-tag deal-tag">Great deal</span>' : ""}</div>
+      <div class="nm">${i != null ? `<span class="rank">${i + 1}</span>` : ""}<span class="nm-txt">${g.slab ? `${c.grade} ${c.name}` : c.name}</span>${g.slab ? "" : `<span class="grade-chip">${c.grade}</span>`}</div>
+      <div class="pr">${price(c)}</div></div>`;
+  $("#shelves").innerHTML = g.shelves.map(([title, pick, ranked]) => {
+    const list = pick(cards).slice(0, 10);
+    return `<div class="shelf"><h2>${title} <span class="chev">›</span></h2><div class="rail">${list.length ? list.map((c, i) => tile(c, ranked ? i : null)).join("") : `<div class="empty">No card matches</div>`}</div></div>`;
+  }).join("");
 }
 $("#explore-q").addEventListener("input", renderExplore);
 $("#explore-chips").addEventListener("click", (e) => {
