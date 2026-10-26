@@ -6,6 +6,8 @@
 
 Construit pour HackMeridian 2026 (Stellar, Lisbonne). Tout ce qui est décrit comme *déployé* ci-dessous tourne sur le testnet Stellar, avec de vraies transactions à ouvrir dans l'explorateur.
 
+**Vidéo de soumission :** https://youtu.be/GI39-gaAhnQ (3 min)
+
 **Démo en ligne :** https://card-place-demo-337081298177.europe-west1.run.app (marketplace web ; `/mobile-app/` pour la version téléphone, à ouvrir en 390 px de large). La fiche on-chain vient de l'agent d'expertise, pas encore déployé : ce bloc s'affiche comme indisponible ; prix et échanges sont lus en direct sur Horizon.
 
 ## Le pitch en images
