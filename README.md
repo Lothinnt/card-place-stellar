@@ -6,6 +6,27 @@
 
 Built for HackMeridian 2026 (Stellar, Lisbon). Everything described as *deployed* below runs on Stellar testnet, with real transactions you can open in the explorer.
 
+## The pitch in pictures
+
+Frames from the submission video. Every terminal line and every transaction shown is real, on Stellar testnet.
+
+<p align="center">
+  <img src="docs/slides/01-hook.jpg" alt="A 1st Edition Charizard PSA 10 sold for $1.38 million in October 2026" width="49%">
+  <img src="docs/slides/03-counterfeits.jpg" alt="Problem: counterfeits and scams — fake cards, fake slabs, resealed boxes" width="49%">
+</p>
+<p align="center">
+  <img src="docs/slides/05-card-place.jpg" alt="That's why we built Card Place: a safer way to buy and sell trading cards" width="49%">
+  <img src="docs/slides/06-card-page.jpg" alt="The card page on web and mobile: price history, recent sales, rarity" width="49%">
+</p>
+<p align="center">
+  <img src="docs/slides/07-escrow.jpg" alt="How a trade is more secure: the buyer's USDC is locked in the escrow, the seller ships to the inspection center, the contract pays the seller" width="49%">
+  <img src="docs/slides/08-escrow-partial-refund.jpg" alt="A partial refund: the card arrived late, 50 USDC back to the buyer, the rest to the seller, in one transaction" width="49%">
+</p>
+<p align="center">
+  <img src="docs/slides/09-vault-trades.jpg" alt="The vault: one card, one Stellar token; collectors trade the token in seconds while the card stays in the vault" width="49%">
+  <img src="docs/slides/10-vault-redeem.jpg" alt="The last holder returns the token, it is burned, and the card ships once" width="49%">
+</p>
+
 ## The problem
 
 Trading cards have become a real investment, and the market is growing fast: $2.8B in North America and $1.3B in Europe in 2025 for trading card games alone (Global Market Insights). A 1st Edition Charizard PSA 10 sold for $1.38M in October 2026.
@@ -315,7 +336,7 @@ apps/agent/src/               # config, vault, photos, appraise, paywall, payer,
 apps/agent/scripts/           # x402-smoke.mjs, pay-and-appraise.mjs
 demo-web-page/                # web marketplace: index.html, styles.css, app.js, data/, img/, serve.mjs, seed-market.sh
 mobile-app/                   # mobile marketplace: single index.html
-docs/                         # reference photos of the card, screenshots, architecture diagram (.excalidraw + .svg)
+docs/                         # reference photos of the card, screenshots, slides of the video, architecture diagram (.excalidraw + .svg)
 README.fr.md                  # this README in French
 AGENTS.md                     # context for coding agents
 ```

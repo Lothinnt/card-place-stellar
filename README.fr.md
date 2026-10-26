@@ -6,6 +6,27 @@
 
 Construit pour HackMeridian 2026 (Stellar, Lisbonne). Tout ce qui est décrit comme *déployé* ci-dessous tourne sur le testnet Stellar, avec de vraies transactions à ouvrir dans l'explorateur.
 
+## Le pitch en images
+
+Images de la vidéo de soumission. Chaque ligne de terminal et chaque transaction montrée est réelle, sur le testnet Stellar.
+
+<p align="center">
+  <img src="docs/slides/01-hook.jpg" alt="Un Dracaufeu 1re Édition PSA 10 vendu 1,38 M$ en octobre 2026" width="49%">
+  <img src="docs/slides/03-counterfeits.jpg" alt="Problème : contrefaçons et arnaques — fausses cartes, faux slabs, boîtes rescellées" width="49%">
+</p>
+<p align="center">
+  <img src="docs/slides/05-card-place.jpg" alt="C'est pourquoi nous avons construit Card Place : acheter et vendre des cartes en toute sécurité" width="49%">
+  <img src="docs/slides/06-card-page.jpg" alt="La fiche de la carte sur web et mobile : historique de prix, ventes récentes, rareté" width="49%">
+</p>
+<p align="center">
+  <img src="docs/slides/07-escrow.jpg" alt="Un échange plus sûr : les USDC de l'acheteur sont bloqués dans l'escrow, le vendeur expédie au centre d'inspection, le contrat paie le vendeur" width="49%">
+  <img src="docs/slides/08-escrow-partial-refund.jpg" alt="Un remboursement partiel : la carte est arrivée en retard, 50 USDC rendus à l'acheteur, le reste au vendeur, en une transaction" width="49%">
+</p>
+<p align="center">
+  <img src="docs/slides/09-vault-trades.jpg" alt="Le coffre : une carte, un jeton Stellar ; les collectionneurs échangent le jeton en quelques secondes pendant que la carte reste en coffre" width="49%">
+  <img src="docs/slides/10-vault-redeem.jpg" alt="Le dernier détenteur rend le jeton, il est brûlé, et la carte est expédiée une seule fois" width="49%">
+</p>
+
 ## Le problème
 
 Les cartes à collectionner sont devenues un vrai investissement, et le marché grandit vite : 2,8 Md$ en Amérique du Nord et 1,3 Md$ en Europe en 2025 pour les seuls jeux de cartes (Global Market Insights). Un Dracaufeu 1re Édition PSA 10 s'est vendu 1,38 M$ en octobre 2026.
@@ -315,7 +336,7 @@ apps/agent/src/               # config, vault, photos, appraise, paywall, payer,
 apps/agent/scripts/           # x402-smoke.mjs, pay-and-appraise.mjs
 demo-web-page/                # marketplace web : index.html, styles.css, app.js, data/, img/, serve.mjs, seed-market.sh
 mobile-app/                   # marketplace mobile : un seul index.html
-docs/                         # photos de référence de la carte, captures, schéma d'architecture (.excalidraw + .svg)
+docs/                         # photos de référence de la carte, captures, diapos de la vidéo, schéma d'architecture (.excalidraw + .svg)
 README.md                     # ce README en anglais
 AGENTS.md                     # contexte pour les agents de code
 ```
