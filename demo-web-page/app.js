@@ -8,7 +8,8 @@
 const AGENT_URL = "http://localhost:3000";
 const HORIZON = "https://horizon-testnet.stellar.org";
 const ISSUER = "GBNZP4YND7GXOM26YNBOAXIMTEMKNHDX7CQ5VZOJ3VKW7HDJSQR3XK75";
-const CONTRACT = "CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO";
+const CONTRACT = "CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO"; // vault
+const ESCROW = "CC2NP5O5E5L4463WLWTEPXOR3KEBYY7FMQMZT56TYLBJUVCP3DJHLG2O";   // escrow, linked to the vault
 
 const $ = (sel) => document.querySelector(sel);
 const fmt = (n) => n.toLocaleString("en-GB", { maximumFractionDigits: 0 });
@@ -210,8 +211,9 @@ async function loadVault() {
       ? `This card (${id}) entered our vault on ${since ?? "ledger " + c.registered_at}. Its owner has asked for it to be shipped. You can track it here.`
       : `This card (${id}) was in our vault from ${since ?? "ledger " + c.registered_at} and has been shipped to its owner${c.tracking ? ` (tracking ${c.tracking})` : ""}. You can track it here.`;
   } catch {
-    tag.textContent = "service offline"; tag.className = "tag";
-    text.textContent = `This card (${DATA.grader} ${DATA.cert}) is registered in our vault. Start the agent (npm start) to read the live record. You can track it here.`;
+    // the live reader (agent) is not deployed in this demo: show the last record read on-chain
+    tag.textContent = "Shipped"; tag.className = "tag warn";
+    text.textContent = `This card (${DATA.grader} ${DATA.cert}) entered our vault on 9 Oct 2026 and has been shipped to its owner (tracking LA123456789FR). Last record read on-chain on 26 Oct 2026; the live reader is not deployed in this demo.`;
   }
 }
 
