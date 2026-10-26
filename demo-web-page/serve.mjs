@@ -15,6 +15,7 @@ const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": 
 createServer(async (req, res) => {
   try {
     let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
+    if (p === "/") { res.writeHead(302, { Location: "/demo-web-page/" }); return res.end(); }
     if (p.endsWith("/")) p += "index.html";
     const file = path.join(ROOT, p);
     if (!file.startsWith(ROOT)) throw Object.assign(new Error("forbidden"), { code: "EACCES" });

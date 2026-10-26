@@ -1,0 +1,9 @@
+.git
+target/
+apps/
+contracts/
+demo/
+**/node_modules/
+**/test_snapshots/
+.env
+.env.*
