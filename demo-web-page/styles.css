@@ -370,3 +370,8 @@ body.wide .page, body.wide .nav-inner { max-width: 1560px; }
 .table-wrap#cap-grid, .ov .table-wrap { overflow-x: auto; }
 .cap-filter { margin-bottom: 16px; }
 .cap-filter[hidden] { display: none; }
+
+/* the ranking is sample data: say it */
+.notice { display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: #131314; color: var(--muted); font-size: 13.5px; }
+.notice b { color: var(--text); font-weight: 500; }
+.notice i { width: 8px; height: 8px; border-radius: 50%; background: #4cc38a; box-shadow: 0 0 8px #4cc38a; flex: none; }
