@@ -1,0 +1,17 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Rust / Soroban
+target/
+**/test_snapshots/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

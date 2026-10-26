@@ -1,0 +1,16 @@
+[package]
+name = "card_escrow"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Card Place escrow: the buyer's USDC is locked in the contract until the custodian confirms the card, then paid to the seller (Stellar / Soroban)"
+
+[lib]
+crate-type = ["lib", "cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }

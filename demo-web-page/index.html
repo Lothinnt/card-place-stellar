@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Card Place — Zekrom ex PSA 10</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#">Card Place</a>
+    <div class="nav-links tabs" id="market-tabs">
+      <button data-cat="cap">Market cap</button>
+      <button data-cat="all" class="active">All</button>
+      <button data-cat="trending">Trending</button>
+      <button data-cat="new">New</button>
+      <button data-cat="Pokémon">Pokémon</button>
+      <button data-cat="One Piece">One Piece</button>
+      <button data-cat="Magic The Gathering">Magic The Gathering</button>
+    </div>
+    <div class="nav-right">
+      <button class="btn btn-ghost">Sign in</button>
+    </div>
+  </div>
+</nav>
+
+<main class="page">
+
+  <!-- ====== Market ====== -->
+  <section id="market" class="section">
+    <div class="section-head">
+      <div class="seg" id="cap-bar" hidden><div id="cap-view"><button data-view="tcg" class="active">By TCG</button><button data-view="cards">By Card</button></div></div>
+      <h1 id="market-title">Top cards</h1>
+      <p class="muted" id="market-sub">Public price, 24h change, volume and sales. Every sale is a Stellar transaction, visible to anyone.</p>
+    </div>
+
+      <div class="ov" id="overview" hidden>
+        <div class="table-wrap"><table class="table ov-table" id="ov-table">
+          <thead><tr><th class="num sort" data-sort="rank">#</th><th class="sort" data-sort="name">Game</th><th class="num sort" data-sort="index">Market value index</th><th class="num sort" data-sort="d7">7d %</th><th class="num sort" data-sort="d30">30d %</th><th class="num sort" data-sort="d90">90d %</th>
+            <th class="num sort" data-sort="entry">Entry cost</th><th class="num sort" data-sort="momentum">Momentum</th><th class="num sort" data-sort="dominance">Dominance</th><th class="num sort" data-sort="cards"># Cards</th><th class="num">Graph</th></tr></thead>
+          <tbody></tbody></table></div>
+        <p class="footnote" id="ov-note"></p>
+      </div>
+
+      <div class="tabs cap-filter" id="cap-filter" hidden></div>
+      <div class="table-wrap" id="cap-grid" hidden><table class="table ov-table" id="cap-table">
+      <thead><tr><th class="num sort" data-sort="rank">#</th><th class="sort" data-sort="name">Card</th><th class="num sort" data-sort="cap">Market cap</th><th class="num sort" data-sort="d7">7d %</th><th class="num sort" data-sort="d30">30d %</th><th class="num sort" data-sort="d90">90d %</th>
+        <th class="num sort" data-sort="entry">Entry cost</th><th class="num sort" data-sort="momentum">Momentum</th><th class="num sort" data-sort="dominance">Dominance</th><th class="num sort" data-sort="pop">Population</th><th class="num">Graph</th></tr></thead>
+      <tbody></tbody></table><p class="footnote" id="cap-note"></p></div>
+
+    <div class="table-wrap" id="market-table-wrap">
+      <table class="table" id="market-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="num">Price</th>
+            <th class="num">24h</th>
+            <th class="num">30d volume</th>
+            <th class="num">30d sales</th>
+            <th class="num"></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ====== Card ====== -->
+  <section id="card" class="section card-section" hidden>
+
+    <aside class="card-visual">
+      <div class="card3d" id="card3d">
+        <div class="card3d-inner" id="card3d-inner">
+          <img class="face front" src="../docs/psa-137798077-front.jpg" alt="Zekrom ex PSA 10, front">
+          <img class="face back" src="../docs/psa-137798077-back.jpg" alt="Zekrom ex PSA 10, back">
+        </div>
+      </div>
+      <input class="turn" id="turn" type="range" min="0" max="180" value="0" step="1" aria-label="Turn the card">
+    </aside>
+
+    <div class="card-data">
+
+      <header class="card-head">
+        <div>
+          <p class="eyebrow">Pokémon · BLK FR 2025 · 166/086 · Special Illustration Rare</p>
+          <h2 id="card-title">Zekrom ex <span class="grade-chip">PSA 10</span></h2>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="stat-value"><small>€</small><span id="st-last">—</span></div><div class="stat-label">Last sale</div></div>
+          <div class="stat"><div class="stat-value"><small>€</small><span id="st-record">—</span></div><div class="stat-label">Record sale</div></div>
+          <div class="stat"><div class="stat-value stat-trend" id="st-trend-wrap"><span id="st-trend">—</span><small>%</small></div><div class="stat-label">All-time change</div></div>
+        </div>
+      </header>
+
+      <!-- Sales history -->
+      <div class="block">
+        <div class="block-head">
+          <h3>Sales history</h3>
+          <div class="select-chip">
+            <span>Grade</span>
+            <select id="grade-filter"><option value="10">10</option><option value="9">9</option><option value="all">All</option></select>
+          </div>
+        </div>
+
+
+        <div class="chart-wrap">
+          <svg id="chart" viewBox="0 0 900 300" preserveAspectRatio="none" aria-label="Price chart"></svg>
+          <div class="chart-tip" id="chart-tip" hidden></div>
+        </div>
+        <div class="chart-x"><span id="x-start"></span><span id="x-end"></span></div>
+
+        <div class="periods" id="periods">
+          <button data-days="7">7D</button>
+          <button data-days="30">1M</button>
+          <button data-days="90">3M</button>
+          <button data-days="180">6M</button>
+          <button data-days="ytd">YTD</button>
+          <button data-days="all" class="active">All</button>
+        </div>
+      </div>
+
+      <!-- Rarity -->
+      <div class="block rarity">
+        <div class="block-head">
+          <h3>How rare is this card?</h3>
+          <button class="textlink" id="pop-toggle">Click to see more data</button>
+        </div>
+        <div class="rarity-row">
+          <div class="rarity-item"><span class="rarity-big" id="rarity-big">—</span><span class="rarity-sub" id="rarity-sub"></span></div>
+          <div class="rarity-item"><span class="rarity-big" id="rarity-gem">—</span><span class="rarity-sub">gem rate</span></div>
+          <div class="rarity-item"><span class="rarity-big" id="rarity-total">—</span><span class="rarity-sub">graded in total</span></div>
+        </div>
+        <div class="pop-more" id="pop-more" hidden>
+          <p class="rarity-text" id="rarity-text"></p>
+          <div class="grades" id="pop"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <aside class="card-side">
+      <div class="actions actions-top">
+        <button class="btn btn-primary" id="btn-buy">Buy now</button>
+        <button class="btn btn-ghost" id="btn-offer">Make an offer</button>
+        <button class="btn btn-ghost" id="btn-sell">Sell</button>
+      </div>
+
+      <!-- Recent transactions -->
+      <div class="block">
+        <div class="block-head">
+          <h3>Recent sales</h3>
+
+        </div>
+        <div class="txs" id="txs"></div>
+      </div>
+
+      <div class="grid-2">
+        <!-- On-chain record -->
+        <div class="block" id="vault">
+          <div class="block-head">
+            <h3>Card record</h3>
+            <span class="tag" id="vault-status">—</span>
+          </div>
+          <p class="record-text" id="record-text">Reading the public record…</p>
+        <a class="btn btn-ghost btn-block btn-track" id="btn-track" href="#" target="_blank" rel="noopener">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zM12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>
+          Track this card on the blockchain
+        </a>
+        </div>
+
+        <!-- Card details -->
+        <div class="block">
+          <div class="block-head">
+            <h3>Card details</h3>
+          </div>
+          <dl class="kv details" id="details"></dl>
+        </div>
+      </div>
+      </div>
+
+      <p class="footnote">Card record and live prices are read from the Stellar testnet. Sales history, population and the other market rows are sample data.</p>
+    </aside>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

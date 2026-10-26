@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1450 860" width="1450" height="860" font-family="Virgil, &#x27;Comic Sans MS&#x27;, &#x27;Segoe Print&#x27;, cursive"><defs><marker id="he" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1e1e1e"/></marker><marker id="hs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1e1e1e"/></marker></defs><rect width="1450" height="860" fill="#ffffff"/><rect x="340" y="40" width="660" height="790" rx="16" fill="#e7f5ff" stroke="#1971c2" stroke-width="2" stroke-dasharray="10 8"/>
+<text x="356" y="70" font-size="20" fill="#1971c2">Stellar testnet</text>
+<rect x="30" y="110" width="220" height="90" rx="14" fill="#e9ecef" stroke="#1e1e1e" stroke-width="2"/>
+<text x="140.0" y="152.0" font-size="20" text-anchor="middle" fill="#1e1e1e">Custodian</text>
+<text x="140.0" y="179.0" font-size="15" text-anchor="middle" fill="#495057">Graded Card Shop</text>
+<rect x="30" y="330" width="220" height="100" rx="14" fill="#e9ecef" stroke="#1e1e1e" stroke-width="2"/>
+<text x="140.0" y="377.0" font-size="20" text-anchor="middle" fill="#1e1e1e">Collector</text>
+<text x="140.0" y="404.0" font-size="15" text-anchor="middle" fill="#495057">token holder</text>
+<rect x="400" y="90" width="540" height="120" rx="14" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<text x="670.0" y="147.0" font-size="20" text-anchor="middle" fill="#1e1e1e">Soroban vault contract</text>
+<text x="670.0" y="174.0" font-size="15" text-anchor="middle" fill="#495057">cert · grade · photo hash · state</text>
+<rect x="400" y="330" width="240" height="100" rx="14" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<text x="520.0" y="377.0" font-size="20" text-anchor="middle" fill="#1e1e1e">Native order book</text>
+<text x="520.0" y="404.0" font-size="15" text-anchor="middle" fill="#495057">public price &amp; history</text>
+<rect x="700" y="330" width="240" height="100" rx="14" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<text x="820.0" y="377.0" font-size="20" text-anchor="middle" fill="#1e1e1e">Card token</text>
+<text x="820.0" y="404.0" font-size="15" text-anchor="middle" fill="#495057">PSA137798077 · 1 unit = 1 card</text>
+<rect x="560" y="640" width="240" height="90" rx="14" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<text x="680.0" y="692.0" font-size="20" text-anchor="middle" fill="#1e1e1e">USDC (SEP-41)</text>
+<rect x="1080" y="90" width="320" height="100" rx="14" fill="#e9ecef" stroke="#1e1e1e" stroke-width="2"/>
+<text x="1240.0" y="137.0" font-size="20" text-anchor="middle" fill="#1e1e1e">Demo web page</text>
+<text x="1240.0" y="164.0" font-size="15" text-anchor="middle" fill="#495057">reads Horizon: order book, trades</text>
+<rect x="1080" y="330" width="320" height="110" rx="14" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<text x="1240.0" y="382.0" font-size="20" text-anchor="middle" fill="#1e1e1e">AI appraisal agent</text>
+<text x="1240.0" y="409.0" font-size="15" text-anchor="middle" fill="#495057">apps/agent · no keys, no signing</text>
+<rect x="1080" y="560" width="320" height="90" rx="14" fill="#e9ecef" stroke="#1e1e1e" stroke-width="2"/>
+<text x="1240.0" y="602.0" font-size="20" text-anchor="middle" fill="#1e1e1e">Capped agent wallet</text>
+<text x="1240.0" y="629.0" font-size="15" text-anchor="middle" fill="#495057">the buyer</text>
+<rect x="1080" y="720" width="320" height="90" rx="14" fill="#ffd8a8" stroke="#1e1e1e" stroke-width="2"/>
+<text x="1240.0" y="762.0" font-size="20" text-anchor="middle" fill="#1e1e1e">x402 facilitator</text>
+<text x="1240.0" y="789.0" font-size="15" text-anchor="middle" fill="#495057">OpenZeppelin</text>
+<line x1="250" y1="155" x2="400" y2="155" stroke="#1e1e1e" stroke-width="2" marker-end="url(#he)"/>
+<rect x="266.375" y="118" width="117.25000000000001" height="42" fill="#ffffff" fill-opacity="0.85" rx="4"/>
+<text x="325" y="134" font-size="15" text-anchor="middle" fill="#1e1e1e">register_card</text>
+<text x="325" y="153" font-size="15" text-anchor="middle" fill="#1e1e1e">mark_shipped</text>
+<line x1="250" y1="385" x2="400" y2="385" stroke="#1e1e1e" stroke-width="2" marker-end="url(#he)" marker-start="url(#hs)"/>
+<rect x="270.5" y="360" width="109.00000000000001" height="23" fill="#ffffff" fill-opacity="0.85" rx="4"/>
+<text x="325" y="376" font-size="15" text-anchor="middle" fill="#1e1e1e">buy / resell</text>
+<line x1="250" y1="340" x2="470" y2="210" stroke="#1e1e1e" stroke-width="2" marker-end="url(#he)"/>
+<rect x="300.25" y="253" width="59.50000000000001" height="23" fill="#ffffff" fill-opacity="0.85" rx="4"/>
+<text x="330" y="269" font-size="15" text-anchor="middle" fill="#1e1e1e">redeem</text>
+<line x1="640" y1="380" x2="700" y2="380" stroke="#1e1e1e" stroke-width="2" marker-end="url(#he)" marker-start="url(#hs)"/>
+<line x1="820" y1="210" x2="820" y2="330" stroke="#1e1e1e" stroke-width="2" marker-end="url(#he)"/>
+<rect x="816.625" y="256" width="166.75" height="23" fill="#ffffff" fill-opacity="0.85" rx="4"/>
+<text x="900" y="272" font-size="15" text-anchor="middle" fill="#1e1e1e">SAC transfer → burn</text>
+<line x1="1080" y1="360" x2="940" y2="185" stroke="#1e1e1e" stroke-width="2" marker-end="url(#he)"/>
+<rect x="973.125" y="220" width="133.75" height="23" fill="#ffffff" fill-opacity="0.85" rx="4"/>
+<text x="1040" y="236" font-size="15" text-anchor="middle" fill="#1e1e1e">get_card (read)</text>
+<line x1="1240" y1="190" x2="1240" y2="330" stroke="#1e1e1e" stroke-width="2" marker-end="url(#he)"/>
+<rect x="1249.0" y="260" width="142.0" height="23" fill="#ffffff" fill-opacity="0.85" rx="4"/>
+<text x="1320" y="276" font-size="15" text-anchor="middle" fill="#1e1e1e">GET /vault/:code</text>
+<line x1="1240" y1="560" x2="1240" y2="440" stroke="#1e1e1e" stroke-width="2" marker-end="url(#he)"/>
+<rect x="1250.75" y="498" width="158.5" height="42" fill="#ffffff" fill-opacity="0.85" rx="4"/>
+<text x="1330" y="514" font-size="15" text-anchor="middle" fill="#1e1e1e">POST /api/appraise</text>
+<text x="1330" y="533" font-size="15" text-anchor="middle" fill="#1e1e1e">402 → pay → 200</text>
+<line x1="1080" y1="605" x2="800" y2="670" stroke="#1e1e1e" stroke-width="2" marker-end="url(#he)"/>
+<rect x="907.875" y="608" width="84.25" height="23" fill="#ffffff" fill-opacity="0.85" rx="4"/>
+<text x="950" y="624" font-size="15" text-anchor="middle" fill="#1e1e1e">0.01 USDC</text>
+<line x1="1080" y1="765" x2="800" y2="705" stroke="#1e1e1e" stroke-width="2" marker-end="url(#he)"/>
+<rect x="811.25" y="763" width="257.5" height="23" fill="#ffffff" fill-opacity="0.85" rx="4"/>
+<text x="940" y="779" font-size="15" text-anchor="middle" fill="#1e1e1e">verify · settle · sponsor fees</text></svg>

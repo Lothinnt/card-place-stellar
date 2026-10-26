@@ -1,0 +1,299 @@
+# Card Place — A safer way to buy and sell trading cards
+
+<p align="center"><b>🇬🇧 English</b> &nbsp;|&nbsp; <a href="README.fr.md">🇫🇷 Français</a></p>
+
+**A secure exchange to invest in trading cards the way you invest in a stock**: the buyer's money is held in escrow by a Soroban contract until the card has been checked, the card itself lives in a vault and trades as a Stellar token, and every sale leaves a public, verifiable price history.
+
+Built for HackMeridian 2026 (Stellar, Lisbon). Everything described as *deployed* below runs on Stellar testnet, with real transactions you can open in the explorer.
+
+## The problem
+
+Trading cards have become a real investment, and the market is growing fast: $2.8B in North America and $1.3B in Europe in 2025 for trading card games alone (Global Market Insights). A 1st Edition Charizard PSA 10 sold for $1.38M in October 2026.
+
+I am a collector, and the co-founder of [Graded Card Shop](https://gradedcardshop.fr): we buy and sell graded cards and have made 300+ sales without any advertising, only through platforms like Vinted and eBay. Day to day, this market has three problems:
+
+1. **Counterfeits and scams.** Fake cards, fake slabs with copied labels, booster boxes resealed and sold as new. Every transaction means trusting a stranger again.
+2. **Theft.** Parcels stolen in transit, insurance that doesn't always pay, burglaries that target collectors.
+3. **Scattered data.** Sales happen on many platforms that don't share their history. There is no reliable price history, no way to compare a card to others or to the market as a whole, the way you would for a stock or a crypto.
+
+**Card Place targets all cards, but starts with graded cards** (PSA, PCA, BGS): already authenticated, sealed in a slab, identified by a unique certificate number. Their condition is frozen and their price is liquid. It is the easiest market to secure first.
+
+## What Card Place does
+
+<p align="center">
+  <img src="docs/screen-card.jpg" alt="Card Place — Zekrom ex PSA 10 card page: sales history, rarity, recent sales, on-chain record" width="100%">
+</p>
+
+Card Place does two things.
+
+**It secures the trade.** The buyer's USDC is locked in an **escrow contract**, not with the seller and not with Card Place. The seller only ships once the deposit is visible on-chain. The card goes to our vault, where we inspect it. If it is what was sold, the contract pays the seller; if not, the contract refunds the buyer. If nothing happens before the deadline, the buyer can refund themselves. No trust needed between buyer and seller, and no human can hold the money hostage.
+
+**It gives you the full picture before you buy.** Every card has its page: price history, recent sales, rarity, and how it compares to the rest of the market. The data comes from the chain, so anyone can verify it.
+
+Sellers can also leave their card in the vault. It is then represented by **a native Stellar asset** (code = certificate number, 1 unit issued). The token trades on the native order book in 5 seconds for a fraction of a cent, and the physical card only travels once: when the final holder calls `redeem()`, returns the token and receives the card.
+
+### The user journey
+
+Buyer:
+
+1. I want this card: I open an escrow and deposit the price in USDC. → `escrow.open`
+2. The seller ships the card to Card Place. We inspect it, and an AI agent cross-checks the slab against the grader's record.
+3. Valid card: the contract pays the seller. → `escrow.release`. Not valid: I get my money back. → `escrow.refund`
+4. I receive the card, or I leave it in the vault as a token I can resell without shipping.
+
+Seller:
+
+1. I list my card at my price, and accept or reject offers.
+2. I only ship once the buyer's money is locked on-chain.
+3. If my card is in the vault, it is a token: I can sell it as many times as I like without touching it.
+
+### Security, concretely
+
+- **Escrow with no discretion.** Release and refund follow rules written in the contract: custodian confirmation, or a timeout that lets the buyer refund themselves. The money is in a contract address, visible to everyone.
+- **No AI in transaction validation.** Validating a payment, releasing escrow, burning a token: deterministic, tested, readable code. AI is used elsewhere: a coding agent to build and deploy the contracts, and an appraisal agent paid per call that never touches funds.
+- **Only the custodian can create a card token**, and only after the physical inspection. A card that isn't in the vault has no token. A fake, a stolen photo or a resealed slab produce nothing.
+- **The reference photo is taken by the custodian**, not the seller, and its SHA-256 is stored on-chain: nobody can swap it afterwards.
+- **The AI agent identifies the card; it does not replace physical authentication.** It cross-checks the grader's public record, the slab label read from the photo, and the on-chain record. If any one diverges, a human reviews it.
+
+## What runs on testnet today
+
+Two complete on-chain journeys, executed with a real card from our stock (2025 Pokémon BLK FR Zekrom ex #166, PSA 10, certificate 137798077):
+
+**The vault.**
+1. The custodian authenticates the card, puts it in the vault and registers it on-chain: certificate, grade, SHA-256 of the photo. → `register_card`
+2. The token moves freely: payments, order book, trustline = the receiver's consent.
+3. An AI agent, paid 0.01 USDC per call via **x402 on Stellar**, checks the photo against the contract, reads the slab label, compares it with the on-chain record and the grader's certificate, and rates the condition.
+4. The holder returns the token and requests the card. → `redeem` (the SAC burns the token)
+5. The custodian confirms shipping with the tracking number. → `mark_shipped`
+
+**The escrow.**
+1. The buyer deposits 943 USDC for the card. → `open` — the USDC leaves the buyer's account for the contract's.
+2. The custodian receives and checks the card, and releases the funds. → `release` — the seller receives 943 USDC.
+3. A second trade, 50 USDC, for a card that fails inspection: the custodian refunds. → `refund` — the buyer gets their 50 USDC back.
+
+Both contracts are small, fully commented, and covered by unit tests (11 for the vault, 13 for the escrow).
+
+## Why Stellar
+
+Replace Stellar with a database and you need a trusted intermediary to hold balances and publish prices, plus settlement delays and fees on every resale. On Stellar:
+
+- **The escrow is a contract, not a company.** Soroban holds the USDC; the rules are public code.
+- **A card token is not a contract.** One card = asset code + issuer, 1 unit. Issuing takes two transactions.
+- **The market is already in the protocol.** The native order book trades the card against XLM or USDC with no marketplace code, and it is public: the end of opaque prices.
+- **Every sale is a public transaction.** A card's price history can be verified by anyone, without depending on the platform.
+- **A trustline is consent.** Nobody receives a card without having accepted it.
+- **Fees make a €10 card viable**, which is economically impossible elsewhere.
+- **Fiat goes in and out through anchors** (SEP-24, MoneyGram): the buyer pays in euros, the ledger settles in USDC.
+- **x402 on Stellar** lets agents pay in the same currency as collectors, with fees sponsored by the facilitator.
+
+[StockX](https://stockx.com) proved the order book + authentication model for sneakers, without a blockchain. [Courtyard](https://courtyard.io) tokenises PSA cards on Polygon. Card Place's angle is the European niche (PCA, PSA FR), a seller who is also the custodian, low-priced cards that fees exclude elsewhere, an escrow that protects both sides, and the public price as the product.
+
+## Architecture
+
+<p align="center">
+  <img src="docs/architecture.svg" alt="Card Place architecture: custodian, collector, Soroban vault contract, card token, native order book, USDC, AI appraisal agent, x402 facilitator" width="100%">
+</p>
+
+Source: [`docs/architecture.excalidraw`](docs/architecture.excalidraw), editable at [excalidraw.com](https://excalidraw.com). The custodian writes the record, the market lives on the native order book, the escrow holds the USDC between buyer and seller, the agent reads the record and gets paid in USDC, and `redeem` burns the token and triggers shipping.
+
+## Technical specs
+
+### Contract `contracts/escrow` (Rust, `soroban-sdk` 28, target `wasm32v1-none`)
+
+| Function | Auth | Inputs | Output | Effect |
+|---|---|---|---|---|
+| `__constructor(custodian, token)` | deployment | `Address, Address` | — | sets the custodian and the payment asset (USDC SAC) |
+| `open(buyer, seller, card, amount, deadline_ledgers)` | buyer | `Address, Address, Symbol, i128, u32` | `Result<u32, Error>` | transfers `amount` from the buyer to the contract, creates the trade, state `Funded`. Returns the trade id. Errors `InvalidAmount` (3), `SameParty` (5) |
+| `release(trade_id)` | custodian | `u32` | `Result<(), Error>` | transfers `amount` from the contract to the seller, state `Released`. Errors `TradeNotFound` (1), `InvalidStatus` (2) |
+| `refund(caller, trade_id)` | caller | `Address, u32` | `Result<(), Error>` | transfers `amount` back to the buyer, state `Refunded`. The custodian can call it any time; the buyer only after `deadline`. Error `NotExpired` (4) |
+| `get_trade(trade_id)` | none | `u32` | `Result<Trade, Error>` | public read |
+
+**`Trade` record.** `buyer`, `seller`, `card` (asset code of the card, link to the vault), `amount` (7 decimals), `status`, `opened_at`, `deadline` (ledger).
+
+**Invariants.** A trade leaves `Funded` exactly once, to `Released` or `Refunded`. The amount that leaves the contract equals the amount deposited. The seller can never trigger a refund. 13 unit tests cover both paths, the deadline, and every rejection.
+
+### Contract `contracts/vault` (Rust, `soroban-sdk` 28, target `wasm32v1-none`)
+
+| Function | Auth | Inputs | Output | Effect |
+|---|---|---|---|---|
+| `__constructor(custodian)` | deployment | `Address` | — | sets the custodian |
+| `register_card(asset_code, token, grader, cert, grade, description, photo_hash)` | custodian | `Symbol, Address, Symbol, Symbol, u32, String, BytesN<32>` | `Result<(), Error>` | creates the record, state `InVault`. Error `CardAlreadyRegistered` (1) |
+| `redeem(holder, asset_code)` | holder | `Address, Symbol` | `Result<(), Error>` | transfers 1 unit of the token (SAC) to the custodian, state `RedeemRequested`. Errors `CardNotFound` (2), `InvalidStatus` (3) |
+| `mark_shipped(asset_code, tracking)` | custodian | `Symbol, String` | `Result<(), Error>` | state `Shipped`, stores tracking |
+| `get_card(asset_code)` | none | `Symbol` | `Result<Card, Error>` | public read |
+
+**Invariants.** Strict transitions `InVault → RedeemRequested → Shipped`. `redeem` requires the holder's auth, which covers the SAC `transfer`: nobody can return someone else's token. Custodian = issuer, so the transfer burns the token. 11 unit tests.
+
+Both contracts keep their records in persistent storage with the TTL extended on every write (threshold 30 days, target 1 year). No `Vec`, no loops: constant cost per call.
+
+### Agent `apps/agent` (Node 22, ESM, Express 5)
+
+| Route | Price | Role |
+|---|---|---|
+| `GET /health` | free | service status |
+| `GET /vault/:asset_code` | free | on-chain record, read through RPC simulation |
+| `POST /api/appraise` `{ asset_code }` | 0.01 USDC via x402 | reads the record, checks the photo fingerprint; Claude reads the label, compares it with the record and the grader's certificate, rates the condition and estimates value |
+
+**x402 on Stellar.** `@x402/express` + `@x402/stellar`, testnet facilitator hosted by OpenZeppelin, SEP-41 USDC. The client signs a Soroban authorization entry; the facilitator rebuilds the transaction, sponsors the fees and settles. The client refuses to sign above the `AGENT_MAX_USD_PER_PAYMENT` cap.
+
+**The AI agent holds no Stellar key and signs no transaction.** It proposes; the holder and the custodian decide.
+
+## Deployed on testnet
+
+| What | Address / transaction |
+|---|---|
+| Custodian and deployer | [`GBNZP4YND7GXOM26YNBOAXIMTEMKNHDX7CQ5VZOJ3VKW7HDJSQR3XK75`](https://stellar.expert/explorer/testnet/account/GBNZP4YND7GXOM26YNBOAXIMTEMKNHDX7CQ5VZOJ3VKW7HDJSQR3XK75) |
+| **Escrow contract** | [`CDZVLUGTZW4CW46XYGIL4BGOFGMQW6HJTHSDMEDMGDEOKN2EMW22IDTM`](https://stellar.expert/explorer/testnet/contract/CDZVLUGTZW4CW46XYGIL4BGOFGMQW6HJTHSDMEDMGDEOKN2EMW22IDTM) |
+| Escrow deployment | [`f60a82…6c336`](https://stellar.expert/explorer/testnet/tx/f60a823a5d7392029b836a0007c6cd24b9be777b5e234d95ba37e4d51636c336) |
+| USDC (testnet, SAC) | [`CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA`](https://stellar.expert/explorer/testnet/contract/CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA) |
+| Buyer | [`GCR6HZKROPDQY3KZBSC27KKYEB7RAJRDWEIEUQYIXHUA6D6WOVXTWVHH`](https://stellar.expert/explorer/testnet/account/GCR6HZKROPDQY3KZBSC27KKYEB7RAJRDWEIEUQYIXHUA6D6WOVXTWVHH) |
+| Seller | [`GDSMQRA65ZTZBFP57USVK6QNFZNZTCAPCTEDUYUKXEMSOIZAGKI4ZUPM`](https://stellar.expert/explorer/testnet/account/GDSMQRA65ZTZBFP57USVK6QNFZNZTCAPCTEDUYUKXEMSOIZAGKI4ZUPM) |
+| Trade 1 · `open`, 943 USDC locked | [`406af4…c85430`](https://stellar.expert/explorer/testnet/tx/406af426218d25a603bc1319151ef3596eaa1efbd0a084344af45140a3c85430) |
+| Trade 1 · `release`, seller paid | [`07db8e…b8da7`](https://stellar.expert/explorer/testnet/tx/07db8e46d48ee92d59eb04462bea682453b416c193524542b0da4878180b8da7) |
+| Trade 2 · `open`, 50 USDC locked | [`a3aa86…805316`](https://stellar.expert/explorer/testnet/tx/a3aa8640135fa935cfb84b96143cbfa355d25a3769255c4796a65c08fe805316) |
+| Trade 2 · `refund`, buyer reimbursed | [`1160c8…4f8c00`](https://stellar.expert/explorer/testnet/tx/1160c8477a586b6259553ef9258e673d0bbc27374ade4f0381e8a814e04f8c00) |
+| **Vault contract** | [`CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO`](https://stellar.expert/explorer/testnet/contract/CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO) |
+| Vault deployment | [`5833d9…978d1`](https://stellar.expert/explorer/testnet/tx/5833d98dd4230adee7f78feb8b34dcf8d8a190cb453c7b0dbf224c1ab25978d1) |
+| Card asset `PSA137798077` (SAC) | [`CASKFD5AFFRLUEW6YJUQRSTXJ7MQU7ZMUCMW254G4CR5QJ45Q5DYNVKH`](https://stellar.expert/explorer/testnet/contract/CASKFD5AFFRLUEW6YJUQRSTXJ7MQU7ZMUCMW254G4CR5QJ45Q5DYNVKH) |
+| `register_card` (custodian) | [`246cf5…6d32c`](https://stellar.expert/explorer/testnet/tx/246cf5ebeebd77fe2176ef1fa584334a9c6f0e0387e8eed37d45a8ed7526d32c) |
+| `redeem` (collector, SAC `burn` event) | [`fb6a62…8977a`](https://stellar.expert/explorer/testnet/tx/fb6a6235c2cac014ed0e1e846945e1cf5b574b25458ba55e0e9946e0e398977a) |
+| `mark_shipped` (custodian) | [`342db4…5ed3cf`](https://stellar.expert/explorer/testnet/tx/342db414c65cf3bf04648dde4fd87a280d883b2644c287fd64b733ada25ed3cf) |
+| x402 payment settled by the facilitator | [`4709b9…763c4`](https://stellar.expert/explorer/testnet/tx/4709b937d086eef100fe09bc760bde81f9d84887a7fff12f14beec9268e763c4) |
+
+The SHA-256 of `docs/psa-137798077-front.jpg` is `e274a654…0abfa`, stored on-chain.
+
+## Reproduce
+
+Prerequisites: Rust + the `wasm32v1-none` target, [Stellar CLI](https://developers.stellar.org/docs/tools/cli) 28, Node 22, funded testnet identities (`stellar keys generate moi --network testnet --fund`, same for `collectionneur` and `vendeur`).
+
+### 1. Contracts
+
+```sh
+cargo test                                   # 24 tests: 11 vault + 13 escrow
+stellar contract build                       # target/wasm32v1-none/release/{card_vault,card_escrow}.wasm
+
+MOI=$(stellar keys address moi)
+stellar contract deploy \
+  --wasm target/wasm32v1-none/release/card_vault.wasm \
+  --source-account moi --network testnet --alias vault \
+  -- --custodian "$MOI"
+
+USDC=$(stellar contract id asset --asset USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5 --network testnet)
+stellar contract deploy \
+  --wasm target/wasm32v1-none/release/card_escrow.wasm \
+  --source-account moi --network testnet --alias escrow \
+  -- --custodian "$MOI" --token "$USDC"
+```
+
+### 2. The escrow cycle
+
+The buyer and the seller both need a USDC trustline (`stellar tx new change-trust --source-account <who> --line USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5 --network testnet`), and the buyer some testnet USDC ([Circle faucet](https://faucet.circle.com), Stellar network).
+
+```sh
+COL=$(stellar keys address collectionneur); VEN=$(stellar keys address vendeur)
+
+# the buyer locks 943 USDC for the card (deadline ≈ 7 days of ledgers)
+stellar contract invoke --id escrow --source-account collectionneur --network testnet --send=yes -- \
+  open --buyer "$COL" --seller "$VEN" --card PSA137798077 --amount 9430000000 --deadline_ledgers 120960
+# → 1  (trade id)
+
+# the custodian checks the card and pays the seller
+stellar contract invoke --id escrow --source-account moi --network testnet --send=yes -- release --trade_id 1
+
+# or, if the card fails inspection, refunds the buyer
+stellar contract invoke --id escrow --source-account moi --network testnet --send=yes -- refund --caller "$MOI" --trade_id 1
+
+# public read
+stellar contract invoke --id escrow --source-account moi --network testnet -- get_trade --trade_id 1
+```
+
+### 3. The card: a native asset, a SAC, a holder
+
+```sh
+stellar tx new change-trust --source-account collectionneur --line "PSA137798077:$MOI" --network testnet
+stellar tx new payment --source-account moi --destination "$COL" \
+  --asset "PSA137798077:$MOI" --amount 10000000 --network testnet          # 1 unit = 1 card
+stellar contract asset deploy --asset "PSA137798077:$MOI" --source-account moi --network testnet --alias card_psa137798077
+```
+
+### 4. The vault cycle
+
+```sh
+# the custodian registers the card (hash = sha256 of docs/psa-137798077-front.jpg)
+stellar contract invoke --id vault --source-account moi --network testnet --send=yes -- \
+  register_card --asset_code PSA137798077 --token CASKFD5AFFRLUEW6YJUQRSTXJ7MQU7ZMUCMW254G4CR5QJ45Q5DYNVKH \
+  --grader PSA --cert '"137798077"' --grade 10 \
+  --description '"2025 Pokemon BLK FR Zekrom ex #166 Special Illustration Rare"' \
+  --photo_hash e274a6542ed20a6121176b169f09bf56c8a58ea62653109a9d553aa073a0abfa
+
+# the collector returns the token and requests shipping
+stellar contract invoke --id vault --source-account collectionneur --network testnet --send=yes -- \
+  redeem --holder "$COL" --asset_code PSA137798077
+
+# the custodian confirms shipping
+stellar contract invoke --id vault --source-account moi --network testnet --send=yes -- \
+  mark_shipped --asset_code PSA137798077 --tracking '"LA123456789FR"'
+```
+
+Without `--send=yes`, the call is only simulated and never reaches the ledger.
+
+### 5. The AI agent and the x402 API
+
+```sh
+cd apps/agent
+npm install
+cp .env.example .env     # VAULT_CONTRACT_ID, X402_PAY_TO, X402_FACILITATOR_API_KEY, ANTHROPIC_API_KEY, AGENT_SECRET_KEY
+```
+
+- Free testnet facilitator key: `curl https://channels.openzeppelin.com/testnet/gen`
+- The paying account needs a USDC trustline and some testnet USDC.
+
+```sh
+node scripts/x402-smoke.mjs                       # real x402 payment, no AI: 402 → 200 + receipt
+npm start                                         # server on :3000
+curl localhost:3000/vault/PSA137798077            # free
+node scripts/pay-and-appraise.mjs PSA137798077    # the agent pays 0.01 USDC and receives the appraisal
+```
+
+### 6. The marketplace: web page and mobile app
+
+Plain HTML, no framework, no build step.
+
+```sh
+node demo-web-page/serve.mjs                           # http://localhost:8080/demo-web-page/  and  /mobile-app/
+sh demo-web-page/seed-market.sh                        # places a sell order and a buy order on the Stellar DEX
+```
+
+- **Web** (`demo-web-page/`): market cap ranking by TCG and by card, the Zekrom card page with sales history chart, rarity, recent sales, card record read from the contract, live buy price from the Stellar order book.
+- **Mobile** (`mobile-app/`): home with vault value, explore by card or by TCG, card page with price history, vault, pack opening. Open it at 390 px wide, or on a phone on the same network.
+- The card record is read live through the agent (`GET /vault/:code`); the buy price and the token's transactions are read live from Horizon. Sales history, population, the market table and the ranking are demo data in `demo-web-page/data/`.
+
+## What is real, what remains
+
+| In this repo, verified on testnet | Next |
+|---|---|
+| **Escrow contract**: `open` locks the buyer's USDC, `release` pays the seller, `refund` reimburses on dispute or after the deadline. Both paths executed on-chain | The monitoring program, no AI: listens to the carrier and on-chain events, triggers `release` or `refund` by the contract's rules; disputes go to a human |
+| Vault contract, full cycle registered → returned → shipped with a real card | Several real cards from our stock, live trading on the order book |
+| Card = native asset + SAC, token burned on `redeem` | Connected wallet (Freighter), fiat payment through an anchor |
+| x402 payment on Stellar settled on-chain by the facilitator | The agent that buys for a collector within their spending limit |
+| AI appraisal agent: on-chain read, SHA-256 check, structured output | Certificate lookup with the grader (PSA API, PCA page) |
+| Web page and mobile app: on-chain record and order book read live, chart, population, ranking | Buy and sell from the page, through the escrow; sales history indexed from the token's transactions |
+| Pack opening on mobile (prototype, local randomness) | Verifiable on-chain draw |
+
+Then: a physical fingerprint of the card (high-resolution scan under fixed lighting, hash on-chain, re-scan on exit) or a tamper-proof NFC seal on the slab, and raw cards through the authentication and grading service at vault intake.
+
+## Structure
+
+```
+contracts/escrow/src/lib.rs   # the escrow contract, commented
+contracts/escrow/src/test.rs  # 13 tests
+contracts/vault/src/lib.rs    # the vault contract, commented
+contracts/vault/src/test.rs   # 11 tests
+apps/agent/src/               # config, vault, photos, appraise, paywall, payer, server
+apps/agent/scripts/           # x402-smoke.mjs, pay-and-appraise.mjs
+demo-web-page/                # web marketplace: index.html, styles.css, app.js, data/, img/, serve.mjs, seed-market.sh
+mobile-app/                   # mobile marketplace: single index.html
+docs/                         # reference photos of the card, screenshots, architecture diagram (.excalidraw + .svg)
+README.fr.md                  # this README in French
+AGENTS.md                     # context for coding agents
+```
