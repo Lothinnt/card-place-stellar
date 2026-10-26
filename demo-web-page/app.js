@@ -196,7 +196,8 @@ async function ledgerDate(seq) {
 
 async function loadVault() {
   const text = $("#record-text"), tag = $("#vault-status");
-  $("#btn-track").href = `https://stellar.expert/explorer/testnet/asset/${DATA.asset_code}-${ISSUER}`;
+  // the latest activity (26 Oct 2026: open, release, settle, refund) lives on the escrow contract, not on this card's asset
+  $("#btn-track").href = `https://stellar.expert/explorer/testnet/contract/${ESCROW}`;
   try {
     // 3 s at most: without the agent (not deployed in this demo), fall back to the last record read on-chain
     const r = await fetch(`${AGENT_URL}/vault/${DATA.asset_code}`, { signal: AbortSignal.timeout(3000) });
