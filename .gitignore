@@ -6,6 +6,8 @@
 # Rust / Soroban
 target/
 **/test_snapshots/
+# local Stellar CLI config (identities, contract aliases) if you use --config-dir
+.stellar/
 
 # Node
 node_modules/

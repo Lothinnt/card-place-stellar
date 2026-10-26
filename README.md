@@ -189,18 +189,26 @@ stellar contract deploy \
   -- --custodian "$MOI" --token "$USDC" --vault "$(stellar contract alias show vault --network testnet)"
 ```
 
+The two `deploy` commands register the `vault` and `escrow` aliases in your Stellar CLI config; everything below uses them. The contracts we deployed (table above) only accept our custodian key, so the write calls (`register_card`, `release`…) run against your own deployment. To read ours instead (`get_card`, `get_trade`): `stellar contract alias add vault --id CDN5OOWTOYKEXMH5CDG7APQRQEHGFRKWQEAHQR5XR3643YOM2YEMEMRO --network testnet` and `stellar contract alias add escrow --id CBUFJVVLC2TY7MDKEQKDAFP7TXPKP6MEDW2XWESEKJFG5V6ZJUEVHNWG --network testnet`.
+
 ### 2. The escrow cycle
 
-Or run everything at once, with the explorer link opened at each step: `sh demo/demo.sh`.
+Or run everything at once, with the explorer link opened at each step: `bash demo/demo.sh` (bash, not `sh`). `OPEN_LINKS=0` keeps the links in the terminal; `PRICE_USDC=9 TRAP_USDC=1` lowers the amounts (default 943 + 50 USDC on the buyer's side, the 50 come back). The script checks the identities and aliases first and tells you what is missing.
 
-The buyer and the seller both need a USDC trustline (`stellar tx new change-trust --source-account <who> --line USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5 --network testnet`), and the buyer some testnet USDC ([Circle faucet](https://faucet.circle.com), Stellar network).
+The buyer and the seller both need a USDC trustline (`stellar tx new change-trust --source-account <who> --line USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5 --network testnet`), and the buyer some testnet USDC ([Circle faucet](https://faucet.circle.com), Stellar network): 993 USDC for the demo as written, or lower the amounts.
 
 ```sh
 COL=$(stellar keys address collectionneur); VEN=$(stellar keys address vendeur)
 
+# the escrow only pays for a card the vault holds: the custodian registers it first (Lugia V PSA 10, cert 86768374)
+stellar contract invoke --id vault --source-account moi --network testnet --send=yes -- \
+  register_card --asset_code PSA86768374 --token CDRINTY4HMKL52OPNN3V5HXWIXRZXKZ4TKCMRWM24VVWVLUTH2ZWNHYZ \
+  --grader PSA --cert '"86768374"' --grade 10 --description '"2022 Pokemon SWSH FR Lugia V #186 Silver Tempest"' \
+  --photo_hash fea44be57a1038c49a0f092207bb31436c066f38060fccd1d2ec84842d9dad26
+
 # the buyer locks 943 USDC for the card (deadline ≈ 7 days of ledgers)
 stellar contract invoke --id escrow --source-account collectionneur --network testnet --send=yes -- \
-  open --buyer "$COL" --seller "$VEN" --card PSA137798077 --amount 9430000000 --deadline_ledgers 120960
+  open --buyer "$COL" --seller "$VEN" --card PSA86768374 --amount 9430000000 --deadline_ledgers 120960
 # → 1  (trade id)
 
 # the custodian checks the card and pays the seller
@@ -266,7 +274,7 @@ node scripts/pay-and-appraise.mjs PSA137798077    # the agent pays 0.01 USDC and
 Plain HTML, no framework, no build step.
 
 ```sh
-node demo-web-page/serve.mjs                           # http://localhost:8080/demo-web-page/  and  /mobile-app/
+node demo-web-page/serve.mjs                           # http://localhost:8080/demo-web-page/  and  /mobile-app/  (PORT=8081 if 8080 is taken)
 sh demo-web-page/seed-market.sh                        # places a sell order and a buy order on the Stellar DEX
 ```
 
