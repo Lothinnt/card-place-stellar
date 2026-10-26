@@ -53,7 +53,7 @@ I am a collector, and the co-founder of [Graded Card Shop](https://gradedcardsho
 
 Card Place does two things.
 
-**It secures the trade.** The buyer's USDC is locked in an **escrow contract**, not with the seller and not with Card Place. The seller only ships once the deposit is visible on-chain. The card goes to our vault, where we inspect it. If it is what was sold, the contract pays the seller; if not, the contract refunds the buyer. If nothing happens before the deadline, the buyer can refund themselves. No trust needed between buyer and seller, and no human can hold the money hostage.
+**It secures the trade.** The buyer's USDC is locked in an **escrow contract**, not with the seller and not with Card Place. The seller only ships once the deposit is visible on-chain. The card goes to our vault, where we inspect it. If it is what was sold, we confirm and the contract pays the seller; if not, the contract refunds the buyer. If the card is genuine but the seller is at fault (late shipping…), we decide how much goes back to the buyer and the contract pays the rest to the seller. If nothing happens before the deadline, the buyer can refund themselves. No trust needed between buyer and seller, and the money can only ever go to one of them.
 
 **It gives you the full picture before you buy.** Every card has its page: price history, recent sales, rarity, and how it compares to the rest of the market. The data comes from the chain, so anyone can verify it.
 
@@ -76,7 +76,7 @@ Seller:
 
 ### Security, concretely
 
-- **Escrow with no discretion.** Release and refund follow rules written in the contract: custodian confirmation, or a timeout that lets the buyer refund themselves. The money is in a contract address, visible to everyone.
+- **Card Place rules, the contract sets the limits.** We inspect the card, so we decide: pay the seller (`release`), refund the buyer (`refund`), or split the deposit when the card is genuine but the seller is at fault (`settle`, where we choose the amount refunded). The contract bounds that power: only the custodian key can rule; the money can only go to the buyer or the seller, never anywhere else; the seller is only paid if the vault holds the card; a trade is ruled once and cannot be reopened; every decision is a public transaction showing the amount refunded. If we never rule, the buyer refunds themselves after the deadline. The reason for a decision is not recorded on-chain yet.
 - **No AI in transaction validation.** Validating a payment, releasing escrow, burning a token: deterministic, tested, readable code. AI is used elsewhere: a coding agent to build and deploy the contracts, and an appraisal agent paid per call that never touches funds.
 - **Only the custodian can create a card token**, and only after the physical inspection. A card that isn't in the vault has no token. A fake, a stolen photo or a resealed slab produce nothing.
 - **The reference photo is taken by the custodian**, not the seller, and its SHA-256 is stored on-chain: nobody can swap it afterwards.

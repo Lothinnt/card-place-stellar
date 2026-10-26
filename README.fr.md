@@ -53,7 +53,7 @@ Je suis collectionneur, et cofondateur de [Graded Card Shop](https://gradedcards
 
 Card Place fait deux choses.
 
-**Elle sécurise l'échange.** Les USDC de l'acheteur sont bloqués dans un **contrat d'escrow**, ni chez le vendeur ni chez Card Place. Le vendeur n'expédie qu'une fois le dépôt visible on-chain. La carte arrive dans notre coffre, où nous l'inspectons. Si c'est bien ce qui a été vendu, le contrat paie le vendeur ; sinon, le contrat rembourse l'acheteur. Si rien ne se passe avant l'échéance, l'acheteur peut se rembourser lui-même. Aucune confiance nécessaire entre acheteur et vendeur, et personne ne peut retenir l'argent.
+**Elle sécurise l'échange.** Les USDC de l'acheteur sont bloqués dans un **contrat d'escrow**, ni chez le vendeur ni chez Card Place. Le vendeur n'expédie qu'une fois le dépôt visible on-chain. La carte arrive dans notre coffre, où nous l'inspectons. Si c'est bien ce qui a été vendu, nous confirmons et le contrat paie le vendeur ; sinon, le contrat rembourse l'acheteur. Si la carte est authentique mais que le vendeur est en faute (retard d'envoi…), nous décidons de la part rendue à l'acheteur et le contrat verse le reste au vendeur. Si rien ne se passe avant l'échéance, l'acheteur peut se rembourser lui-même. Aucune confiance nécessaire entre acheteur et vendeur, et l'argent ne peut aller qu'à l'un des deux.
 
 **Elle donne une vue complète avant d'acheter.** Chaque carte a sa page : historique de prix, ventes récentes, rareté, et sa place par rapport au reste du marché. Les données viennent de la chaîne, donc chacun peut les vérifier.
 
@@ -76,7 +76,7 @@ Vendeur :
 
 ### La sécurité, concrètement
 
-- **Un escrow sans pouvoir discrétionnaire.** Libération et remboursement suivent les règles écrites dans le contrat : confirmation du dépositaire, ou une échéance qui permet à l'acheteur de se rembourser seul. L'argent est à l'adresse d'un contrat, visible de tous.
+- **Card Place tranche, le contrat fixe les limites.** C'est nous qui inspectons la carte, donc c'est nous qui décidons : payer le vendeur (`release`), rembourser l'acheteur (`refund`), ou partager le dépôt quand la carte est authentique mais que le vendeur est en faute (`settle`, où nous choisissons le montant rendu). Le contrat encadre ce pouvoir : seule la clé du dépositaire peut trancher ; l'argent ne peut aller qu'à l'acheteur ou au vendeur, jamais ailleurs ; le vendeur n'est payé que si le coffre tient la carte ; un échange n'est tranché qu'une fois et ne peut pas être rouvert ; chaque décision est une transaction publique qui montre le montant rendu. Si nous ne tranchons jamais, l'acheteur se rembourse seul après l'échéance. Le motif d'une décision n'est pas encore enregistré on-chain.
 - **Aucune IA dans la validation des transactions.** Valider un paiement, libérer l'escrow, brûler un jeton : du code déterministe, testé, lisible. L'IA est ailleurs : un agent de code pour construire et déployer les contrats, et un agent d'expertise payé à l'appel qui ne touche jamais aux fonds.
 - **Seul le dépositaire peut créer le jeton d'une carte**, et seulement après l'inspection physique. Une carte qui n'est pas en coffre n'a pas de jeton. Une contrefaçon, une photo volée ou un slab rescellé ne produisent rien.
 - **La photo de référence est prise par le dépositaire**, pas par le vendeur, et son SHA-256 est stocké on-chain : personne ne peut la remplacer ensuite.
