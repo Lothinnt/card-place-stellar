@@ -26,6 +26,10 @@ Frames from the submission video. Every terminal line and every transaction show
   <img src="docs/slides/09-vault-trades.jpg" alt="The vault: one card, one Stellar token; collectors trade the token in seconds while the card stays in the vault" width="49%">
   <img src="docs/slides/10-vault-redeem.jpg" alt="The last holder returns the token, it is burned, and the card ships once" width="49%">
 </p>
+<p align="center">
+  <img src="docs/slides/10b-packs.jpg" alt="Open packs online: every pull is a real card, tokenized like any card in the vault" width="49%">
+  <img src="docs/slides/11-why-stellar.jpg" alt="Why Stellar: native assets, built-in order book, fees under a cent; Soroban, x402, anchors; public price history" width="49%">
+</p>
 
 ## The problem
 

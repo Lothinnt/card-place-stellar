@@ -26,6 +26,10 @@ Images de la vidéo de soumission. Chaque ligne de terminal et chaque transactio
   <img src="docs/slides/09-vault-trades.jpg" alt="Le coffre : une carte, un jeton Stellar ; les collectionneurs échangent le jeton en quelques secondes pendant que la carte reste en coffre" width="49%">
   <img src="docs/slides/10-vault-redeem.jpg" alt="Le dernier détenteur rend le jeton, il est brûlé, et la carte est expédiée une seule fois" width="49%">
 </p>
+<p align="center">
+  <img src="docs/slides/10b-packs.jpg" alt="Ouvrir des packs en ligne : chaque carte tirée est réelle, tokenisée comme toute carte du coffre" width="49%">
+  <img src="docs/slides/11-why-stellar.jpg" alt="Pourquoi Stellar : actifs natifs, carnet d'ordres intégré, frais inférieurs au centime ; Soroban, x402, anchors ; historique de prix public" width="49%">
+</p>
 
 ## Le problème
 
